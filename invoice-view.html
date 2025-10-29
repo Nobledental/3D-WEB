@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invoice — Noble Dental Care</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="anim.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script defer>
+    window.addEventListener('DOMContentLoaded', async ()=>{
+      const qs = new URLSearchParams(location.search);
+      const raw = qs.get('i'); if (!raw){ document.body.innerHTML='<main class="container"><div class="card"><h2>Invalid invoice link</h2></div></main>'; return; }
+      const data = JSON.parse(LZString.decompressFromEncodedURIComponent(raw) || '{}');
+      const fmt = (n)=>'₹'+Number(n||0).toFixed(2);
+      const date = new Date(data.date||Date.now()).toLocaleDateString();
+      const gst = data.clinic?.gstin?`<div><b>GSTIN:</b> ${data.clinic.gstin}</div>`:'';
+      document.body.innerHTML = `
+        <header class="appbar"><div class="brand"><div class="logo">🦷</div><div><h1>${data.clinic?.name||'Noble Dental Care'}</h1><div class="small muted">Invoice Viewer</div></div></div><nav><a href="#" id="dl" class="navlink">Download PDF</a></nav></header>
+        <main class="container">
+          <section class="card">
+            <div class="header"><h2>Invoice #${data.number||''}</h2><div>${date}</div></div>
+            <div class="invoice">
+              <div class="row"><div><b>${data.clinic?.name||''}</b><br>${data.clinic?.address||''}${gst}</div><div><b>Bill To</b><br>${data.patient?.name||''}<br>${data.patient?.phone||''}</div></div>
+              <div class="table" style="margin-top:10px">
+                <table><thead><tr><th>Item</th><th>Code</th><th>Qty</th><th>Price</th><th>GST%</th><th>Tax</th><th>Total</th></tr></thead><tbody>
+                  ${(data.lines||[]).map(l=>`<tr><td>${l.name}</td><td>${l.code||''}</td><td>${l.qty}</td><td>${fmt(l.price)}</td><td>${l.gst||0}</td><td>${fmt(l.tax||0)}</td><td>${fmt(l.total||0)}</td></tr>`).join('')}
+                </tbody></table>
+              </div>
+              <div class="row" style="justify-content:flex-end;gap:16px;margin-top:10px">
+                <div><b>Sub</b><div>${fmt(data.subTotal)}</div></div>
+                <div><b>Tax</b><div>${fmt(data.taxTotal)}</div></div>
+                <div><b>Discount</b><div>${fmt(data.discount||0)}</div></div>
+                <div><b>Grand</b><div>${fmt(data.grandTotal)}</div></div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <div><h3>Pay via UPI</h3><div id="qr" class="qr"></div><div id="upi" class="small muted"></div></div>
+            </div>
+          </section>
+        </main>
+        <footer class="footer small muted">© <span id="year"></span> Noble Dental Care</footer>
+      `;
+      document.querySelectorAll('#year').forEach(n=>n.textContent=new Date().getFullYear());
+
+      // Build UPI QR
+      const due = Math.max(0, (data.grandTotal||0) - (data.paidNow||0));
+      if (data.clinic?.upiPa && data.clinic?.upiPn && due>0) {
+        const upi = `upi://pay?pa=${encodeURIComponent(data.clinic.upiPa)}&pn=${encodeURIComponent(data.clinic.upiPn)}&am=${due.toFixed(2)}&cu=INR&tn=${encodeURIComponent('INV '+(data.number||''))}`;
+        document.querySelector('#upi').textContent = upi;
+        new QRCode(document.querySelector('#qr'), { text: upi, width: 188, height: 188 });
+      }
+      // PDF
+      document.querySelector('#dl').addEventListener('click', async (e)=>{
+        e.preventDefault();
+        const node = document.querySelector('main .card');
+        const canvas = await html2canvas(node, { scale: 2, useCORS: true });
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p','pt','a4');
+        const pageW = pdf.internal.pageSize.getWidth();
+        const ratio = pageW / canvas.width;
+        pdf.addImage(canvas.toDataURL('image/png'),'PNG', 20, 20, pageW-40, canvas.height*ratio);
+        pdf.save(`Invoice_${data.number||'NDC'}.pdf`);
+      });
+    });
+  </script>
+</head>
+<body></body>
+</html>

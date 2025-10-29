@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NDC Billing — Inventory & Tariff</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="anim.css">
+  <script type="module" src="inventory.js" defer></script>
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand"><div class="logo">🛒</div><div><h1>Inventory & Tariff</h1><div class="small muted">Procedures / Pricing</div></div></div>
+    <nav>
+      <a href="index.html" class="navlink">Dashboard</a>
+      <a href="patients.html" class="navlink">Patients</a>
+      <a href="inventory.html" class="navlink active">Inventory/Tariff</a>
+      <a href="billing.html" class="navlink">Create Bill</a>
+      <button id="theme" class="navlink ripple">Theme</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card reveal">
+      <div class="header"><h2>Add Item / Service</h2></div>
+      <div class="grid cols-3">
+        <label>Item <input id="iName" placeholder="Root Canal (Molar)"></label>
+        <label>Code <input id="iCode" placeholder="RC-M"></label>
+        <label>Group
+          <select id="iGroup">
+            <option>General</option><option>Preventive</option><option>Restorative</option>
+            <option>Prosthodontics</option><option>Orthodontics</option><option>Oral Surgery</option>
+          </select>
+        </label>
+        <label>Price ₹ <input id="iPrice" type="number" step="0.01" placeholder="3500"></label>
+        <label>Stock <input id="iStock" type="number" step="1" value="1"></label>
+        <label>GST % <input id="iGST" type="number" step="0.1" placeholder="18"></label>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button id="addItem" class="ripple">Add</button>
+        <input id="iSearch" class="grow" placeholder="Search items...">
+        <button id="exportInv" class="tonal ripple">Export</button>
+        <input id="importFile" type="file" accept="application/json" class="navlink">
+      </div>
+    </section>
+
+    <section class="card reveal">
+      <div class="header"><h2>Items</h2>
+        <div class="btn-row">
+          <select id="groupFilter">
+            <option value="">All Groups</option>
+            <option>General</option><option>Preventive</option><option>Restorative</option>
+            <option>Prosthodontics</option><option>Orthodontics</option><option>Oral Surgery</option>
+          </select>
+        </div>
+      </div>
+      <div class="table">
+        <table id="iTable">
+          <thead><tr><th>Item</th><th>Code</th><th>Group</th><th>Price</th><th>GST%</th><th>Stock</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer small muted">© <span id="year"></span> Noble Dental Care — Inventory</footer>
+</body>
+</html>
