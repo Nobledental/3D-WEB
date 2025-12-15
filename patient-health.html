@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HealthFlo Health Board</title>
+  <title>HealthFlo - Health Dashboard</title>
 
   <!-- Icons & Fonts -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -15,174 +15,486 @@
   <!-- Shared Theme -->
   <link rel="stylesheet" href="css/dashboard-theme.css">
 
+  <!-- Chart.js for Trend Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
   <style>
-    /* Specific Health Board Styles */
-    .health-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    /* ===== PREMIUM HEALTH DASHBOARD STYLES ===== */
+
+    /* Main Layout */
+    .main-content {
+      padding: 30px;
+      max-width: 1600px;
+      margin: 0 auto;
     }
 
-    /* Vitals Grid from original but adapted */
-    .vitals-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .vital-card {
-      background: rgba(0, 0, 0, 0.2);
-      padding: 15px;
-      border-radius: 12px;
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .vital-card small {
-      display: block;
-      font-size: 11px;
-      opacity: 0.7;
-      text-transform: uppercase;
-      margin-bottom: 5px;
-    }
-
-    .vital-value {
-      font-size: 24px;
-      font-weight: 700;
-      color: white;
-      display: block;
-    }
-
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .stat {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .stat small {
-      display: block;
-      font-size: 11px;
-      opacity: 0.6;
-      margin-bottom: 4px;
-    }
-
-    .stat strong {
-      color: var(--color-blue);
-      font-size: 16px;
-    }
-
-    .notice {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #60a5fa;
-      margin-top: 15px;
-    }
-
-    .chip-row {
+    /* Health Score Circle */
+    .health-score-container {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
     }
 
-    .chip {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
+    .health-circle {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: conic-gradient(var(--color-green) 0deg,
+          var(--color-green) calc(var(--score) * 3.6deg),
+          rgba(255, 255, 255, 0.05) calc(var(--score) * 3.6deg),
+          rgba(255, 255, 255, 0.05) 360deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: scoreReveal 2s ease-out;
+      position: relative;
     }
 
-    .timeline-grid {
+    .health-circle::before {
+      content: '';
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: var(--bg-primary);
+    }
+
+    .health-score-value {
+      position: relative;
+      z-index: 2;
+      font-size: 48px;
+      font-weight: 800;
+      color: white;
       display: flex;
       flex-direction: column;
+      align-items: center;
+    }
+
+    .health-score-value small {
+      font-size: 12px;
+      opacity: 0.6;
+      font-weight: 500;
+    }
+
+    @keyframes scoreReveal {
+      from {
+        --score: 0;
+      }
+
+      to {
+        --score: var(--final-score);
+      }
+    }
+
+    /* Vitals Grid */
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
       margin-top: 20px;
     }
 
-    .report-card {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 15px;
-      border-radius: 12px;
-      border-left: 3px solid var(--color-blue);
+    .vital-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .report-meta {
-      font-size: 12px;
+    .vital-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-blue), var(--color-purple));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .vital-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .vital-card:hover::before {
+      opacity: 1;
+    }
+
+    .vital-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .vital-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+      font-weight: 600;
+    }
+
+    .vital-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-blue);
+      font-size: 18px;
+    }
+
+    .vital-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .vital-value small {
+      font-size: 14px;
       opacity: 0.6;
-      margin: 4px 0;
+      font-weight: 500;
+      margin-left: 4px;
     }
 
-    .report-ai {
-      font-size: 13px;
-      color: #e2e8f0;
-      margin-top: 8px;
-      line-height: 1.4;
+    .vital-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--color-green);
+      width: fit-content;
     }
 
-    .card {
+    .vital-status.warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--color-yellow);
+    }
+
+    .vital-status.critical {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--color-red);
+    }
+
+    /* Health Insights */
+    .health-insight {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05));
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .health-insight::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .insight-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .insight-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--color-blue);
+    }
+
+    .insight-content {
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+    }
+
+    .insight-content strong {
+      color: var(--color-blue);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .action-btn {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: white;
+      text-decoration: none;
+    }
+
+    .action-btn:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--color-blue);
+      transform: translateX(4px);
+    }
+
+    .action-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--color-blue), var(--color-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .action-text {
+      flex: 1;
+    }
+
+    .action-text strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .action-text small {
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    /* Chart Container */
+    .chart-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .chart-tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .chart-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+    }
+
+    .chart-tab.active {
+      background: var(--color-blue);
+      color: white;
+    }
+
+    /* Risk Assessment */
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .risk-card {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
       padding: 20px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .card h3 {
-      margin-top: 0;
-      font-size: 16px;
+    .risk-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--risk-color);
+    }
+
+    .risk-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .risk-title {
+      font-size: 14px;
+      font-weight: 600;
       color: white;
+      margin-bottom: 4px;
     }
 
-    .section-sub {
-      font-size: 13px;
-      opacity: 0.7;
-      line-height: 1.4;
-      margin-bottom: 15px;
-    }
-
-    /* Table Styles */
-    .table-card {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      color: white;
-    }
-
-    th {
-      text-align: left;
-      padding: 10px;
-      border-bottom: 1px solid var(--glass-border);
-      color: var(--text-muted);
-      font-size: 11px;
+    .risk-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
       text-transform: uppercase;
+      background: var(--risk-color);
+      color: white;
     }
 
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 13px;
+    .risk-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .risk-fill {
+      height: 100%;
+      background: var(--risk-color);
+      width: var(--risk-level);
+      transition: width 1.5s ease-out;
+      animation: fillBar 1.5s ease-out;
+    }
+
+    @keyframes fillBar {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: var(--risk-level);
+      }
+    }
+
+    /* Section Headers */
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      margin: 40px 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--color-blue), var(--color-purple));
+      border-radius: 2px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 20px;
+      }
+
+      .vitals-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .risk-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animations */
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.2;
+        transform: scale(1.05);
+      }
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
     }
   </style>
 </head>
 
 <body>
-
   <div class="app-container">
-    <!-- BROWSER BAR (Shared) -->
+    <!-- BROWSER BAR -->
     <div class="browser-bar">
       <div class="window-controls">
         <div class="window-dot" style="background: #ef4444;"></div>
@@ -193,12 +505,11 @@
     </div>
 
     <div class="dashboard-body">
-      <!-- SIDEBAR (Shared) -->
+      <!-- SIDEBAR -->
       <div class="sidebar">
         <div class="logo">H<span>+</span></div>
         <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
             class="menu-label">Dashboard</span></a>
-        <!-- Active State for Health -->
         <a class="menu-item active" href="patient-health.html"><i class="ph-fill ph-pulse"></i><span
             class="menu-label">Health</span></a>
         <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span
@@ -226,354 +537,343 @@
             class="menu-label">Exit</span></a>
       </div>
 
+      <!-- MAIN CONTENT -->
       <div class="main-content">
-
+        <!-- Header -->
         <div class="header-section">
           <div class="header-left">
             <div class="page-title">
               <h2>Status & Vitals</h2>
-              <h1>Health <span>Board</span></h1>
+              <h1>Health <span>Dashboard</span></h1>
             </div>
           </div>
         </div>
 
-        <!-- Live Vitals and Hero -->
-        <div class="health-grid">
-          <div class="card"
-            style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(30, 41, 59, 0.4));">
-            <span class="pill soft green">Live Vitals</span>
-            <h3 style="margin-top:10px; font-size:20px;">Real-time Checks</h3>
-            <p class="section-sub">Live streaming from paired devices. AI monitoring active.</p>
-
-            <div class="vitals-grid">
-              <div class="vital-card"><small>Heart Rate</small><span class="vital-value"
-                  id="v_hr">--</span><small>bpm</small></div>
-              <div class="vital-card"><small>Blood Pressure</small><span class="vital-value"
-                  id="v_bp">--</span><small>mmHg</small></div>
-              <div class="vital-card"><small>SpO₂</small><span class="vital-value" id="v_spo2">--</span><small>%</small>
+        <!-- Health Score Hero -->
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-top: 30px;">
+          <div
+            style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+              <span
+                style="background: rgba(16, 185, 129, 0.1); color: var(--color-green); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                <i class="ph-fill ph-check-circle"></i> AI Monitored
+              </span>
+            </div>
+            <div class="health-score-container">
+              <div class="health-circle" style="--score: 0; --final-score: 87;">
+                <div class="health-score-value">
+                  <span id="health-score">87</span>
+                  <small>/100</small>
+                </div>
               </div>
-              <div class="vital-card"><small>Temp</small><span class="vital-value"
-                  id="v_temp">--</span><small>°F</small></div>
             </div>
-            <div class="notice" id="ai_summary">Waiting for stream...</div>
+            <h3 style="margin-top: 20px; font-size: 20px; color: white;">Overall Health Score</h3>
+            <p style="opacity: 0.6; font-size: 13px; margin-top: 8px;">Based on 24 health metrics</p>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+              <div style="display: flex; justify-content: space-around; text-align: center;">
+                <div>
+                  <div style="font-size: 24px; font-weight: 700; color: var(--color-green);">92</div>
+                  <div style="font-size: 11px; opacity: 0.6;">Cardiovascular</div>
+                </div>
+                <div>
+                  <div style="font-size: 24px; font-weight: 700; color: var(--color-blue);">85</div>
+                  <div style="font-size: 11px; opacity: 0.6;">Metabolic</div>
+                </div>
+                <div>
+                  <div style="font-size: 24px; font-weight: 700; color: var(--color-purple);">84</div>
+                  <div style="font-size: 11px; opacity: 0.6;">Immunity</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="card">
-            <h3>Blood & Immunity</h3>
-            <p class="section-sub">Recent CBC analysis and hydration levels.</p>
-            <div class="stat-grid">
-              <div class="stat"><small>Hemoglobin</small><strong id="hb_value">13.5</strong></div>
-              <div class="stat"><small>Hydration</small><strong id="water_value">Good</strong></div>
-              <div class="stat"><small>Infection</small><strong id="infection_value">Low</strong></div>
-              <div class="stat"><small>Anemia</small><strong id="anemia_value">No</strong></div>
-            </div>
-            <div class="chip-row" style="margin-top:15px;">
-              <span class="pill soft" id="blood_signal">Balanced</span>
-              <span class="pill soft" id="cbc_signal">Normal</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI LAB SCANNER SECTION (NEW) -->
-      <div class="card" id="scanner_ui"
-        style="margin-top:20px; border:1px dashed var(--color-blue); background:rgba(10, 132, 255, 0.03);">
-        <div id="scan_intro">
-          <div style="text-align:center; padding:30px;">
-            <i class="ph-duotone ph-scan" style="font-size:48px; color:var(--color-blue); margin-bottom:15px;"></i>
-            <h3>AI Report Scanner</h3>
-            <p style="opacity:0.7; max-width:400px; margin:0 auto 20px;">Upload your PDF/JPG lab report. Our AI will
-              extract values, check quality, and give you a medical opinion in layman terms.</p>
-
-            <div id="scan_dropzone"
-              style="border:2px dashed var(--glass-border); border-radius:12px; padding:30px; cursor:pointer; transition:0.3s;">
-              <span class="pill soft" style="margin-bottom:10px;">High Quality Only (>50KB)</span>
-              <div style="font-weight:700;">Click or Drop Report Here</div>
-            </div>
-            <input type="file" id="file_input" style="display:none;" accept=".pdf,.jpg,.png,.jpeg">
-          </div>
-        </div>
-
-        <div id="scan_progress" style="display:none; text-align:center; padding:40px;">
+          <!-- AI Health Insights -->
           <div
-            style="width:60px; height:60px; border:4px solid var(--glass-border); border-top:4px solid var(--color-blue); border-radius:50%; margin:0 auto 20px; animation:spin 1s infinite linear;">
-          </div>
-          <h3>Scanning Document...</h3>
-          <p style="font-size:12px; opacity:0.6;">Extracting Hematology, Biochemistry & screening for errors.</p>
-        </div>
-
-        <div id="scan_results" style="display:none; padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div
-              style="font-size:12px; font-weight:700; color:var(--color-green); display:flex; gap:8px; align-items:center;">
-              <i class="ph-fill ph-check-circle"></i> QUALITY VERIFIED
+            style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px;">
+            <div class="insight-header">
+              <div class="insight-icon">
+                <i class="ph-fill ph-robot"></i>
+              </div>
+              <div style="flex: 1;">
+                <h3 style="font-size: 18px; color: white; margin: 0;">AI Health Guardian</h3>
+                <p style="font-size: 12px; opacity: 0.6; margin: 4px 0 0 0;">Real-time analysis powered by Gemini</p>
+              </div>
+              <span
+                style="background: rgba(16, 185, 129, 0.1); color: var(--color-green); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+                <i class="ph-fill ph-pulse"></i> Live
+              </span>
             </div>
-            <button onclick="location.reload()" class="pill ghost small">Scan Another</button>
+            <div class="insight-content" id="ai-insight">
+              <p style="margin: 0; color: var(--text-main); line-height: 1.7;">
+                <strong>Excellent Progress!</strong> Your cardiovascular metrics show consistent improvement over the
+                past week. Heart rate variability is optimal, indicating good stress management. Blood pressure remains
+                stable within healthy ranges.
+              </p>
+              <p style="margin: 16px 0 0 0; color: var(--text-main); line-height: 1.7; opacity: 0.8;">
+                💡 <strong>Recommendation:</strong> Continue your current exercise routine. Consider adding 10 minutes
+                of meditation daily to maintain low cortisol levels.
+              </p>
+            </div>
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+              <div style="display: flex; gap: 12px;">
+                <button onclick="analyzeHealth()"
+                  style="flex: 1; background: linear-gradient(135deg, var(--color-blue), var(--color-purple)); border: none; padding: 12px; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; transition: transform 0.2s;">
+                  <i class="ph-bold ph-sparkle"></i> Deep Analysis
+                </button>
+                <button
+                  style="flex: 1; background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 12px; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; transition: transform 0.2s;">
+                  <i class="ph-bold ph-export"></i> Export Report
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div
-            style="background:var(--glass-bg); padding:15px; border-radius:12px; border-left:4px solid var(--color-blue); margin-bottom:20px;">
-            <h4 style="margin:0 0 5px 0;">Layman Opinion</h4>
-            <p id="res_summary" style="font-size:14px; line-height:1.5;">Analysis loading...</p>
+        <!-- Live Vitals -->
+        <div class="section-title">
+          <i class="ph-fill ph-activity"></i> Live Vitals Monitoring
+        </div>
+        <div class="vitals-grid">
+          <div class="vital-card">
+            <div class="vital-header">
+              <span class="vital-label">Heart Rate</span>
+              <div class="vital-icon"><i class="ph-fill ph-heartbeat"></i></div>
+            </div>
+            <div class="vital-value" id="v-hr">72<small>bpm</small></div>
+            <div class="vital-status"><i class="ph-fill ph-check"></i> Normal</div>
           </div>
-
-          <div id="res_alerts" class="notice"
-            style="display:none; background:rgba(239, 68, 68, 0.1); border-color:#ef4444; color:#fca5a5;"></div>
-
-          <div id="res_grid" class="grid-3" style="margin-top:20px; margin-bottom:20px;">
-            <!-- Grid Items -->
+          <div class="vital-card">
+            <div class="vital-header">
+              <span class="vital-label">Blood Pressure</span>
+              <div class="vital-icon"><i class="ph-fill ph-drop"></i></div>
+            </div>
+            <div class="vital-value" id="v-bp">118/76<small>mmHg</small></div>
+            <div class="vital-status"><i class="ph-fill ph-check"></i> Optimal</div>
           </div>
-
-          <div id="res_next"
-            style="font-size:13px; opacity:0.8; text-align:center; border-top:1px solid var(--glass-border); padding-top:15px;">
+          <div class="vital-card">
+            <div class="vital-header">
+              <span class="vital-label">Oxygen Saturation</span>
+              <div class="vital-icon"><i class="ph-fill ph-activity"></i></div>
+            </div>
+            <div class="vital-value" id="v-spo2">98<small>%</small></div>
+            <div class="vital-status"><i class="ph-fill ph-check"></i> Excellent</div>
           </div>
+          <div class="vital-card">
+            <div class="vital-header">
+              <span class="vital-label">Body Temperature</span>
+              <div class="vital-icon"><i class="ph-fill ph-thermometer"></i></div>
+            </div>
+            <div class="vital-value" id="v-temp">98.6<small>°F</small></div>
+            <div class="vital-status"><i class="ph-fill ph-check"></i> Normal</div>
+          </div>
+        </div>
+
+        <!-- Trend Chart -->
+        <div class="section-title">
+          <i class="ph-fill ph-chart-line"></i> Health Trends
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">7-Day Vitals Overview</div>
+            <div class="chart-tabs">
+              <button class="chart-tab active" onclick="switchChart('week')">Week</button>
+              <button class="chart-tab" onclick="switchChart('month')">Month</button>
+              <button class="chart-tab" onclick="switchChart('year')">Year</button>
+            </div>
+          </div>
+          <canvas id="trend-chart" height="80"></canvas>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="section-title">
+          <i class="ph-fill ph-shield-warning"></i> Health Risk Assessment
+        </div>
+        <div class="risk-grid">
+          <div class="risk-card" style="--risk-color: #10b981; --risk-level: 15%;">
+            <div class="risk-header">
+              <div>
+                <div class="risk-title">Cardiovascular Disease</div>
+                <p style="font-size: 11px; opacity: 0.6; margin: 0;">Based on genetics & lifestyle</p>
+              </div>
+              <div class="risk-badge">Low</div>
+            </div>
+            <div style="font-size: 13px; opacity: 0.8; margin-top: 12px;">
+              Regular exercise and healthy diet contribute to low risk profile.
+            </div>
+            <div class="risk-bar">
+              <div class="risk-fill"></div>
+            </div>
+          </div>
+          <div class="risk-card" style="--risk-color: #f59e0b; --risk-level: 45%;">
+            <div class="risk-header">
+              <div>
+                <div class="risk-title">Type 2 Diabetes</div>
+                <p style="font-size: 11px; opacity: 0.6; margin: 0;">Fasting glucose trends</p>
+              </div>
+              <div class="risk-badge">Moderate</div>
+            </div>
+            <div style="font-size: 13px; opacity: 0.8; margin-top: 12px;">
+              Monitor blood sugar levels. Consider reducing refined carb intake.
+            </div>
+            <div class="risk-bar">
+              <div class="risk-fill"></div>
+            </div>
+          </div>
+          <div class="risk-card" style="--risk-color: #10b981; --risk-level: 20%;">
+            <div class="risk-header">
+              <div>
+                <div class="risk-title">Hypertension</div>
+                <p style="font-size: 11px; opacity: 0.6; margin: 0;">BP monitoring history</p>
+              </div>
+              <div class="risk-badge">Low</div>
+            </div>
+            <div style="font-size: 13px; opacity: 0.8; margin-top: 12px;">
+              Blood pressure consistently within optimal ranges. Excellent!
+            </div>
+            <div class="risk-bar">
+              <div class="risk-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section-title">
+          <i class="ph-fill ph-lightning"></i> Quick Actions
+        </div>
+        <div class="quick-actions">
+          <a href="patient-labs.html" class="action-btn">
+            <div class="action-icon"><i class="ph-bold ph-upload-simple"></i></div>
+            <div class="action-text">
+              <strong>Upload Lab Results</strong>
+              <small>PDF, JPG supported</small>
+            </div>
+          </a>
+          <a href="patient-organs.html" class="action-btn">
+            <div class="action-icon"><i class="ph-bold ph-scan"></i></div>
+            <div class="action-text">
+              <strong>Organ Health Check</strong>
+              <small>Full body scan</small>
+            </div>
+          </a>
+          <a href="patient-pharmacy.html" class="action-btn">
+            <div class="action-icon"><i class="ph-bold ph-pill"></i></div>
+            <div class="action-text">
+              <strong>Medication Tracker</strong>
+              <small>View schedule</small>
+            </div>
+          </a>
+          <a href="patient-hospitals.html" class="action-btn">
+            <div class="action-icon"><i class="ph-bold ph-calendar-plus"></i></div>
+            <div class="action-text">
+              <strong>Book Appointment</strong>
+              <small>Find nearby doctors</small>
+            </div>
+          </a>
         </div>
       </div>
-
-      <!-- Lab Intelligence -->
-      <h3 style="margin: 30px 0 15px 0; font-size:18px; color:white;">Lab Intelligence</h3>
-      <div class="health-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-        <div class="card">
-          <h3>LFT - Liver</h3>
-          <p class="section-sub" id="lab_lft_ai">Liver values normal.</p>
-          <div class="stat-grid">
-            <div class="stat"><small>SGOT</small><strong id="lab_sgot">--</strong></div>
-            <div class="stat"><small>SGPT</small><strong id="lab_sgpt">--</strong></div>
-            <div class="stat"><small>Bilirubin</small><strong id="lab_bilirubin">--</strong></div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>KFT - Kidney</h3>
-          <p class="section-sub" id="lab_kft_ai">Kidney function stable.</p>
-          <div class="stat-grid">
-            <div class="stat"><small>Creatinine</small><strong id="lab_creatinine">--</strong></div>
-            <div class="stat"><small>Urea</small><strong id="lab_urea">--</strong></div>
-            <div class="stat"><small>Sodium</small><strong id="lab_sodium">--</strong></div>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Cardiac</h3>
-          <p class="section-sub" id="lab_cardiac_ai">Heart markers low stress.</p>
-          <div class="stat-grid">
-            <div class="stat"><small>Troponin</small><strong id="lab_troponin">--</strong></div>
-            <div class="stat"><small>CRP</small><strong id="lab_crp">--</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Doctor Timeline (Mapped from Labs) -->
-      <h3 style="margin: 30px 0 15px 0; font-size:18px; color:white;">Doctor Timeline</h3>
-      <div id="lab_timeline" class="timeline-grid"></div>
-
-      <!-- Radiology -->
-      <h3 style="margin: 30px 0 15px 0; font-size:18px; color:white;">Radiology Board</h3>
-      <div class="table-card card">
-        <table>
-          <thead>
-            <tr>
-              <th>Study</th>
-              <th>Status</th>
-              <th>ETA</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-rad-study="usg-abdomen">
-              <td>USG Abdomen</td>
-              <td><span class="chip" data-rad-status>Ready</span></td>
-              <td><span data-rad-eta>Today</span></td>
-            </tr>
-            <tr data-rad-study="ct-head">
-              <td>MRI / CT Head</td>
-              <td><span class="chip" data-rad-status>Scheduled</span></td>
-              <td><span data-rad-eta>Tmrw</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
     </div>
-  </div>
   </div>
 
   <script type="module">
     import { DemoUsers, injectDemoData } from './js/demo-data.js';
     import { MedicalBrain } from './js/medical-brain.js';
-    import { LabAnalyzer } from './js/lab-analyzer.js';
 
     const brain = new MedicalBrain();
 
     document.addEventListener('DOMContentLoaded', () => {
       injectDemoData();
-
-      // --- LAB SCANNER LOGIC ---
-      const dropZone = document.getElementById('scan_dropzone');
-      const scannerUI = document.getElementById('scanner_ui');
-      const resultsUI = document.getElementById('scan_results');
-
-      if (dropZone) {
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--color-blue)'; });
-        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--glass-border)'; });
-        dropZone.addEventListener('drop', handleDrop);
-        dropZone.addEventListener('click', () => document.getElementById('file_input').click());
-        document.getElementById('file_input').addEventListener('change', (e) => handleFiles(e.target.files));
-      }
-
-      function handleDrop(e) {
-        e.preventDefault();
-        handleFiles(e.dataTransfer.files);
-      }
-
-      async function handleFiles(files) {
-        if (files.length === 0) return;
-        const file = files[0];
-
-        // 1. UI: Show Scanning
-        document.getElementById('scan_intro').style.display = 'none';
-        document.getElementById('scan_progress').style.display = 'block';
-
-        // 2. Engine: Scan
-        try {
-          const data = await LabAnalyzer.scanDocument(file);
-
-          // 3. Engine: Analyze
-          // Identify user meds (Simulated from Demo user)
-          const userMeds = ["Metformin 500mg"];
-          const analysis = LabAnalyzer.analyze(data, userMeds);
-
-          // 4. Render Results
-          renderAnalysis(analysis);
-
-        } catch (err) {
-          alert(err);
-          location.reload();
-        }
-      }
-
-      function renderAnalysis(analysis) {
-        document.getElementById('scan_progress').style.display = 'none';
-        resultsUI.style.display = 'block';
-
-        // Summary
-        document.getElementById('res_summary').innerHTML = analysis.summary;
-
-        // Grid
-        let gridHtml = '';
-        analysis.results.forEach(r => {
-          gridHtml += `
-             <div class="stat" style="border-left: 3px solid ${r.color === 'red' ? '#ef4444' : '#10b981'};">
-                <small>${r.label}</small>
-                <strong style="font-size:18px; color:white;">${r.value} <span style="font-size:10px; opacity:0.6;">${r.unit}</span></strong>
-                <div style="font-size:11px; margin-top:4px; color:${r.color === 'red' ? '#ef4444' : '#10b981'}; font-weight:700;">${r.message}</div>
-                <div style="font-size:10px; opacity:0.5; margin-top:2px;">Range: ${r.range}</div>
-             </div>
-             `;
-        });
-        document.getElementById('res_grid').innerHTML = gridHtml;
-
-        // Alerts
-        if (analysis.alerts.length > 0) {
-          const alertBox = document.getElementById('res_alerts');
-          alertBox.style.display = 'block';
-          alertBox.innerHTML = analysis.alerts.map(a => `<div style="margin-bottom:5px;">⚠️ ${a.msg}</div>`).join('');
-        }
-
-        // Follow Ups
-        if (analysis.followUps.length > 0) {
-          document.getElementById('res_next').innerHTML = `<strong>Top Recommendation:</strong> Check ${analysis.followUps.join(', ')} to confirm cause.`;
-        }
-      }
+      initChart();
+      startLiveVitals();
 
       const currentUserKey = localStorage.getItem('hf_demo_user') || 'dhivakaran';
       const user = DemoUsers[currentUserKey];
 
-      if (user && user.vitals && user.labs) {
-        // Run AI Analysis
-        const analysis = brain.analyze(user, user.vitals, user.labs);
+      if (user && user.vitals) {
+        const analysis = brain.analyze(user, user.vitals, user.labs || {});
 
-        // Update UI Elements
-        document.getElementById('v_hr').textContent = user.vitals.heartRate;
-        document.getElementById('v_bp').textContent = `${user.vitals.bpSys}/${user.vitals.bpDia}`;
-        document.getElementById('v_spo2').textContent = user.vitals.spo2;
-        document.getElementById('v_temp').textContent = user.vitals.temp;
-
-        // Lab Fill
-        if (user.labs) {
-          if (user.labs.platelets) document.getElementById('hb_value').textContent = '12.4'; // Example fallback or parse
-          if (user.labs.troponin !== undefined) document.getElementById('lab_troponin').textContent = user.labs.troponin;
-        }
-
-        // Guardian AI Feedback
-        const aiSummary = document.getElementById('ai_summary');
-
-        if (analysis.isCritical) {
-          aiSummary.innerHTML = `<strong>⚠️ CRITICAL ALERT:</strong> ${analysis.alerts[0].message}`;
-          aiSummary.style.background = 'rgba(239, 68, 68, 0.2)';
-          aiSummary.style.color = '#fca5a5';
-          aiSummary.style.borderColor = '#ef4444';
-        } else if (analysis.alerts.length > 0) {
-          aiSummary.innerHTML = `<strong>⚠️ Warning:</strong> ${analysis.alerts[0].message}`;
-          aiSummary.style.background = 'rgba(245, 158, 11, 0.2)';
-          aiSummary.style.color = '#fcd34d';
-        } else {
-          aiSummary.innerHTML = `<strong>✅ Guardian AI:</strong> All monitored metrics stable.`;
-          aiSummary.style.background = 'rgba(16, 185, 129, 0.1)';
-          aiSummary.style.color = '#6ee7b7';
-        }
-
-        // Trigger Advice in Timeline
-        const timeline = document.getElementById('lab_timeline');
-        if (analysis.advice.length > 0 && timeline) {
-          // Prepend new advice
-          const adviceCard = document.createElement('article');
-          adviceCard.className = 'report-card';
-          adviceCard.style.borderLeftColor = analysis.isCritical ? '#ef4444' : '#f59e0b';
-          adviceCard.innerHTML = `<h4>Guardian AI Suggestion</h4>
-                <div class="report-meta">Just now • Automated Analysis</div>
-                <div class="report-ai">${analysis.advice[0]}</div>`;
-          timeline.prepend(adviceCard);
+        // Update AI Insight
+        const insightEl = document.getElementById('ai-insight');
+        if (analysis.advice && analysis.advice.length > 0) {
+          insightEl.innerHTML = `
+            <p style="margin: 0; color: var(--text-main); line-height: 1.7;">
+              <strong>${analysis.alerts.length > 0 ? '⚠️ Attention:' : '✅ All Good!'}</strong> ${analysis.advice[0]}
+            </p>
+          `;
         }
       }
     });
-  </script>
 
-  <!-- Preserved Logic from original file -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const safeParse = (key) => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
-      const labSnap = safeParse('lab-dashboard-latest');
-      const healthSnap = safeParse('health-board-status');
-      const vitalsSnap = safeParse('dashboardVitals');
+    // Live Vitals Simulation
+    function startLiveVitals() {
+      setInterval(() => {
+        const hr = 68 + Math.floor(Math.random() * 10);
+        const sys = 115 + Math.floor(Math.random() * 8);
+        const dia = 72 + Math.floor(Math.random() * 8);
+        const spo2 = 96 + Math.floor(Math.random() * 4);
+        const temp = (98.4 + Math.random() * 0.4).toFixed(1);
 
-      const panels = labSnap.latestPanels || {};
-      const history = (labSnap.history || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+        document.getElementById('v-hr').innerHTML = `${hr}<small>bpm</small>`;
+        document.getElementById('v-bp').innerHTML = `${sys}/${dia}<small>mmHg</small>`;
+        document.getElementById('v-spo2').innerHTML = `${spo2}<small>%</small>`;
+        document.getElementById('v-temp').innerHTML = `${temp}<small>°F</small>`;
+      }, 3000);
+    }
 
-      const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+    // Initialize Chart
+    function initChart() {
+      const ctx = document.getElementById('trend-chart').getContext('2d');
+      window.healthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Heart Rate (bpm)',
+            data: [72, 68, 75, 70, 73, 69, 72],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          }, {
+            label: 'Blood Pressure (Sys)',
+            data: [118, 115, 120, 117, 119, 116, 118],
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#fff', padding: 16, font: { size: 12 } }
+            }
+          },
+          scales: {
+            y: {
+              ticks: { color: '#999' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            x: {
+              ticks: { color: '#999' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    }
 
-      setText('v_hr', vitalsSnap.stats?.find(s => /heart/i.test(s.label))?.val || '--');
-      setText('v_bp', vitalsSnap.stats?.find(s => /pressure|bp/i.test(s.label))?.val || '--');
-      setText('v_spo2', vitalsSnap.stats?.find(s => /SpO/i.test(s.label))?.val || '--');
-      setText('v_temp', `${panels.temperature ? (panels.temperature.toFixed ? panels.temperature.toFixed(1) : panels.temperature) : '--'}`);
+    // Global functions
+    window.switchChart = (period) => {
+      document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      // Update chart data based on period
+    };
 
-      setText('lab_sgot', `${panels.sgot || '--'}`);
-      setText('lab_sgpt', `${panels.sgpt || '--'}`);
-      setText('lab_bilirubin', `${panels.bilirubin || '--'}`);
-      setText('lab_creatinine', `${panels.creatinine || '--'}`);
-      setText('lab_urea', `${panels.urea || '--'}`);
-      setText('lab_sodium', `${panels.sodium || '--'}`);
-      setText('lab_troponin', panels.troponin || '--');
-      setText('lab_crp', panels.crp || '--');
-
-      const timeline = document.getElementById('lab_timeline');
-      if (timeline) {
-        timeline.innerHTML = '';
-        history.slice(0, 8).forEach(item => {
-          const card = document.createElement('article');
-          card.className = 'report-card';
-          card.innerHTML = `<h4>${item.title || 'Lab slot'}</h4><div class="report-meta">${item.lab || 'Concierge lab'} • ${new Date(item.date).toLocaleString()}</div><div class="report-ai">${item.status || 'Ready'} — ${item.note || 'Synced to dashboard.'}</div>`;
-          timeline.appendChild(card);
-        });
-      }
-    });
+    window.analyzeHealth = async () => {
+      alert('Deep AI Analysis: This feature will run a comprehensive health assessment using Gemini AI and provide personalized wellness recommendations.');
+    };
   </script>
 </body>
 

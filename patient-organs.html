@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HealthFlo Organs</title>
+  <title>HealthFlo - Organ Systems</title>
 
   <!-- Icons & Fonts -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -14,12 +14,392 @@
 
   <!-- Shared Theme -->
   <link rel="stylesheet" href="css/dashboard-theme.css">
+
+  <!-- 3D Model Viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <style>
+    /* ===== PREMIUM ORGAN SYSTEMS DASHBOARD ===== */
+
+    .main-content {
+      padding: 30px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    /* Organ Grid Layout */
+    .organs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    /* Enhanced Organ Card */
+    .organ-card-enhanced {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 0;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .organ-card-enhanced::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--organ-color), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .organ-card-enhanced:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border-color: var(--organ-color);
+    }
+
+    .organ-card-enhanced:hover::before {
+      opacity: 1;
+    }
+
+    /* 3D Preview Section */
+    .organ-preview {
+      height: 220px;
+      position: relative;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
+      overflow: hidden;
+    }
+
+    .organ-preview model-viewer {
+      width: 100%;
+      height: 100%;
+    }
+
+    .organ-status-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 2;
+    }
+
+    .organ-status-badge.healthy {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--color-green);
+      color: var(--color-green);
+    }
+
+    .organ-status-badge.warning {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--color-yellow);
+      color: var(--color-yellow);
+    }
+
+    /* Organ Info Section */
+    .organ-info {
+      padding: 24px;
+    }
+
+    .organ-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .organ-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--organ-color), var(--organ-color-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+    }
+
+    .organ-title {
+      flex: 1;
+    }
+
+    .organ-title h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 4px 0;
+    }
+
+    .organ-title p {
+      font-size: 12px;
+      opacity: 0.6;
+      margin: 0;
+    }
+
+    /* Organ Metrics */
+    .organ-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .metric-item {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.6;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .metric-value small {
+      font-size: 11px;
+      opacity: 0.6;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    /* Health Score Ring */
+    .health-ring {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(var(--organ-color) 0deg,
+          var(--organ-color) calc(var(--health) * 3.6deg),
+          rgba(255, 255, 255, 0.05) calc(var(--health) * 3.6deg),
+          rgba(255, 255, 255, 0.05) 360deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
+      position: relative;
+    }
+
+    .health-ring::before {
+      content: '';
+      position: absolute;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--bg-primary);
+    }
+
+    .health-ring span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Action Buttons */
+    .organ-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .organ-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .organ-btn:hover {
+      background: var(--organ-color);
+      border-color: var(--organ-color);
+      transform: translateY(-2px);
+    }
+
+    /* Body Map Section */
+    .body-map-section {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 30px;
+      margin-top: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .body-map-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .body-diagram {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .body-hotspot {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.2);
+      border: 2px solid var(--color-blue);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    .body-hotspot:hover {
+      transform: scale(1.2);
+      background: var(--color-blue);
+    }
+
+    .body-hotspot i {
+      color: white;
+      font-size: 20px;
+    }
+
+    /* System Stats */
+    .system-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-card h4 {
+      font-size: 14px;
+      color: white;
+      margin: 0 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-blue), var(--color-purple));
+      width: var(--percentage);
+      animation: fillStat 1.5s ease-out;
+    }
+
+    @keyframes fillStat {
+      from {
+        width: 0%;
+      }
+
+      to {
+        width: var(--percentage);
+      }
+    }
+
+    /* Section Headers */
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      margin: 40px 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--color-blue), var(--color-purple));
+      border-radius: 2px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .body-map-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .organs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+      }
+
+      50% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+      }
+    }
+  </style>
 </head>
 
 <body>
-
   <div class="app-container">
-    <!-- BROWSER BAR (Shared) -->
+    <!-- BROWSER BAR -->
     <div class="browser-bar">
       <div class="window-controls">
         <div class="window-dot" style="background: #ef4444;"></div>
@@ -30,14 +410,13 @@
     </div>
 
     <div class="dashboard-body">
-      <!-- SIDEBAR (Shared) -->
+      <!-- SIDEBAR -->
       <div class="sidebar">
         <div class="logo">H<span>+</span></div>
         <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
             class="menu-label">Dashboard</span></a>
         <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span
             class="menu-label">Health</span></a>
-        <!-- Active State for Organs -->
         <a class="menu-item active" href="patient-organs.html"><i class="ph-fill ph-scan"></i><span
             class="menu-label">Organs</span></a>
         <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
@@ -63,133 +442,325 @@
             class="menu-label">Exit</span></a>
       </div>
 
+      <!-- MAIN CONTENT -->
       <div class="main-content">
-
+        <!-- Header -->
         <div class="header-section">
           <div class="header-left">
             <div class="page-title">
               <h2>My Anatomy</h2>
-              <h1>Organ <span>Atlas</span></h1>
-            </div>
-          </div>
-          <div class="top-toggles">
-            <div class="toggle-pill active"><i class="ph-fill ph-cube"></i> 3D View</div>
-            <div class="toggle-pill">List View</div>
-          </div>
-        </div>
-
-        <!-- 3D Models Grid -->
-        <div class="section-header">
-          <div class="blue-dot"></div> Interactive Models
-        </div>
-        <div class="atlas-grid">
-          <div class="atlas-card" data-organ="heart">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3>Heart</h3>
-              <span class="pill success">Synced</span>
-            </div>
-            <model-viewer src="3d_models/heart.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
-            <div class="atlas-links">
-              <a href="#">View ECG</a>
-              <a href="#">Cardiology</a>
-            </div>
-          </div>
-
-          <div class="atlas-card" data-organ="lungs">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3>Lungs</h3>
-              <span class="pill success">Normal</span>
-            </div>
-            <model-viewer src="3d_models/lungs.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
-            <div class="atlas-links">
-              <a href="#">Spirometry</a>
-              <a href="#">Pulmonology</a>
-            </div>
-          </div>
-
-          <div class="atlas-card" data-organ="kidneys">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3>Kidneys</h3>
-              <span class="pill warn">Drink Water</span>
-            </div>
-            <model-viewer src="3d_models/kidneys.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
-            <div class="atlas-links">
-              <a href="#">Urinalysis</a>
-              <a href="#">Nephrology</a>
-            </div>
-          </div>
-
-          <div class="atlas-card" data-organ="liver">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h3>Liver</h3>
-              <span class="pill success">Healthy</span>
-            </div>
-            <model-viewer src="3d_models/liver.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
-            <div class="atlas-links">
-              <a href="#">LFT Report</a>
+              <h1>Organ <span>Systems</span></h1>
             </div>
           </div>
         </div>
 
-        <!-- Organ Status Grid -->
-        <div class="section-header" style="margin-top:30px;">
-          <div class="blue-dot"></div> System Status
+        <!-- Primary Organs Section -->
+        <div class="section-title">
+          <i class="ph-fill ph-heart"></i> Primary Organ Systems
         </div>
-        <div class="organ-map">
-          <div class="organ-card">
-            <h3>Brain & Neuro</h3>
-            <div class="section-sub">Stress: Low • Sleep: 7h</div>
-            <span class="pill success">Optimal</span>
-          </div>
-          <div class="organ-card">
-            <h3>Digestive</h3>
-            <div class="section-sub">Gut Health: Good</div>
-            <span class="pill success">Balanced</span>
-          </div>
-          <div class="organ-card">
-            <h3>Musculoskeletal</h3>
-            <div class="section-sub">Activity: High</div>
-            <span class="pill success">Active</span>
-          </div>
-          <div class="organ-card">
-            <h3>Endocrine</h3>
-            <div class="section-sub">Thyroid: Normal</div>
-            <span class="pill success">Stable</span>
-          </div>
-          <div class="organ-card">
-            <h3>Immune</h3>
-            <div class="section-sub">WBC: Normal</div>
-            <span class="pill success">Strong</span>
-          </div>
-          <div class="organ-card">
-            <h3>Reproductive</h3>
-            <div class="section-sub">Hormones: Normal</div>
-            <span class="pill success">Good</span>
-          </div>
+        <div class="organs-grid" id="organs-grid">
+          <!-- Dynamically populated -->
         </div>
 
-        <!-- Immersive Studio Block -->
-        <div class="card" style="margin-top:20px;">
-          <h3><i class="ph-fill ph-scan" style="color:var(--color-blue); margin-right:8px;"></i> Immersive Studio</h3>
-          <p>Select an organ above to isolate it in the immersive studio view.</p>
-          <div class="model-stage">
-            <model-viewer id="organ_model_viewer"
-              src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Earth/glTF-Binary/Earth.glb"
-              camera-controls auto-rotate shadow-intensity="0.8" interaction-prompt="none"></model-viewer>
+        <!-- Body Map Interactive -->
+        <div class="section-title">
+          <i class="ph-fill ph-user-focus"></i> Interactive Body Map
+        </div>
+        <div class="body-map-section">
+          <div class="body-map-grid">
+            <div class="body-diagram">
+              <svg viewBox="0 0 200 400" style="width: 100%; height: auto;">
+                <defs>
+                  <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(59,130,246,0.2);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgba(139,92,246,0.2);stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <!-- Body Silhouette -->
+                <ellipse cx="100" cy="40" rx="25" ry="30" fill="url(#bodyGradient)" stroke="rgba(255,255,255,0.2)"
+                  stroke-width="1" />
+                <rect x="80" y="65" width="40" height="80" rx="8" fill="url(#bodyGradient)"
+                  stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+                <ellipse cx="100" cy="150" rx="35" ry="40" fill="url(#bodyGradient)" stroke="rgba(255,255,255,0.2)"
+                  stroke-width="1" />
+                <rect x="70" y="185" width="20" height="120" rx="10" fill="url(#bodyGradient)"
+                  stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+                <rect x="110" y="185" width="20" height="120" rx="10" fill="url(#bodyGradient)"
+                  stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+              </svg>
+
+              <!-- Hotspots -->
+              <div class="body-hotspot" style="top: 8%; left: 40%;" data-organ="brain" title="Brain">
+                <i class="ph-fill ph-brain"></i>
+              </div>
+              <div class="body-hotspot" style="top: 22%; left: 38%;" data-organ="heart" title="Heart">
+                <i class="ph-fill ph-heart"></i>
+              </div>
+              <div class="body-hotspot" style="top: 24%; left: 52%;" data-organ="lungs" title="Lungs">
+                <i class="ph-fill ph-wind"></i>
+              </div>
+              <div class="body-hotspot" style="top: 36%; left: 48%;" data-organ="liver" title="Liver">
+                <i class="ph-fill ph-drop"></i>
+              </div>
+              <div class="body-hotspot" style="top: 42%; left: 30%;" data-organ="kidneys" title="Kidneys">
+                <i class="ph-fill ph-funnel"></i>
+              </div>
+            </div>
+
+            <div>
+              <h3 style="font-size: 24px; color: white; margin-bottom: 8px;">Full Body Analysis</h3>
+              <p style="opacity: 0.7; margin-bottom: 24px;">Select organs from the map or explore detailed metrics below
+              </p>
+
+              <div class="system-stats">
+                <div class="stat-card">
+                  <h4><i class="ph-fill ph-activity" style="color: var(--color-blue);"></i> Cardiovascular</h4>
+                  <div style="font-size: 28px; font-weight: 800; color: white;">92<small
+                      style="font-size: 14px; opacity: 0.6;">/100</small></div>
+                  <div class="stat-bar">
+                    <div class="stat-fill" style="--percentage: 92%;"></div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <h4><i class="ph-fill ph-lungs" style="color: var(--color-purple);"></i> Respiratory</h4>
+                  <div style="font-size: 28px; font-weight: 800; color: white;">88<small
+                      style="font-size: 14px; opacity: 0.6;">/100</small></div>
+                  <div class="stat-bar">
+                    <div class="stat-fill" style="--percentage: 88%;"></div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <h4><i class="ph-fill ph-drop-half" style="color: var(--color-green);"></i> Renal</h4>
+                  <div style="font-size: 28px; font-weight: 800; color: white;">85<small
+                      style="font-size: 14px; opacity: 0.6;">/100</small></div>
+                  <div class="stat-bar">
+                    <div class="stat-fill" style="--percentage: 85%;"></div>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <h4><i class="ph-fill ph-hamburger" style="color: var(--color-yellow);"></i> Digestive</h4>
+                  <div style="font-size: 28px; font-weight: 800; color: white;">90<small
+                      style="font-size: 14px; opacity: 0.6;">/100</small></div>
+                  <div class="stat-bar">
+                    <div class="stat-fill" style="--percentage: 90%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style="margin-top: 24px; padding: 20px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <div
+                    style="width: 40px; height: 40px; border-radius: 10px; background: var(--color-blue); display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-fill ph-robot" style="font-size: 20px;"></i>
+                  </div>
+                  <div>
+                    <strong style="color: white; font-size: 14px;">AI Insight</strong>
+                    <p style="font-size: 11px; opacity: 0.6; margin: 0;">Guardian Analysis</p>
+                  </div>
+                </div>
+                <p style="font-size: 13px; line-height: 1.6; margin: 0; opacity: 0.9;">
+                  All major organ systems are functioning optimally. Cardiovascular health shows excellent improvement
+                  since last month. Continue current lifestyle habits.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <script type="module">
-    import { injectDemoData } from './js/demo-data.js';
+    import { DemoUsers, injectDemoData } from './js/demo-data.js';
+
+    const ORGAN_DATA = {
+      heart: {
+        name: 'Heart',
+        subtitle: 'Cardiovascular System',
+        model: '3d_models/heart.glb',
+        icon: 'ph-heart',
+        color: '#ef4444',
+        colorDark: '#dc2626',
+        health: 92,
+        status: 'healthy',
+        metrics: [
+          { label: 'Heart Rate', value: '72', unit: 'bpm' },
+          { label: 'BP', value: '118/76', unit: 'mmHg' },
+          { label: 'EF', value: '60', unit: '%' },
+          { label: 'Output', value: '5.2', unit: 'L/min' }
+        ]
+      },
+      brain: {
+        name: 'Brain',
+        subtitle: 'Nervous System',
+        model: '3d_models/brain.glb',
+        icon: 'ph-brain',
+        color: '#8b5cf6',
+        colorDark: '#7c3aed',
+        health: 85,
+        status: 'healthy',
+        metrics: [
+          { label: 'Cognition', value: 'Sharp', unit: '' },
+          { label: 'Stress', value: 'Low', unit: '' },
+          { label: 'Sleep', value: '7.2', unit: 'hrs' },
+          { label: 'Memory', value: 'Good', unit: '' }
+        ]
+      },
+      lungs: {
+        name: 'Lungs',
+        subtitle: 'Respiratory System',
+        model: '3d_models/lungs.glb',
+        icon: 'ph-wind',
+        color: '#06b6d4',
+        colorDark: '#0891b2',
+        health: 88,
+        status: 'healthy',
+        metrics: [
+          { label: 'SpO2', value: '98', unit: '%' },
+          { label: 'Resp Rate', value: '16', unit: '/min' },
+          { label: 'VO2 Max', value: '42', unit: 'ml' },
+          { label: 'Capacity', value: '5.8', unit: 'L' }
+        ]
+      },
+      liver: {
+        name: 'Liver',
+        subtitle: 'Hepatic System',
+        model: '3d_models/liver.glb',
+        icon: 'ph-drop-half',
+        color: '#f59e0b',
+        colorDark: '#d97706',
+        health: 90,
+        status: 'healthy',
+        metrics: [
+          { label: 'ALT', value: '28', unit: 'U/L' },
+          { label: 'AST', value: '25', unit: 'U/L' },
+          { label: 'Bilirubin', value: '0.8', unit: 'mg/dL' },
+          { label: 'Function', value: '95', unit: '%' }
+        ]
+      },
+      kidneys: {
+        name: 'Kidneys',
+        subtitle: 'Renal System',
+        model: '3d_models/kidneys.glb',
+        icon: 'ph-funnel',
+        color: '#10b981',
+        colorDark: '#059669',
+        health: 85,
+        status: 'warning',
+        metrics: [
+          { label: 'GFR', value: '95', unit: 'mL' },
+          { label: 'Creatinine', value: '0.9', unit: 'mg/dL' },
+          { label: 'BUN', value: '14', unit: 'mg/dL' },
+          { label: 'Hydration', value: '78', unit: '%' }
+        ]
+      },
+      eyes: {
+        name: 'Eyes',
+        subtitle: 'Visual System',
+        model: '3d_models/eyes.glb',
+        icon: 'ph-eye',
+        color: '#3b82f6',
+        colorDark: '#2563eb',
+        health: 95,
+        status: 'healthy',
+        metrics: [
+          { label: 'Vision', value: '20/20', unit: '' },
+          { label: 'IOP', value: '14', unit: 'mmHg' },
+          { label: 'Strain', value: 'Low', unit: '' },
+          { label: 'Health', value: 'Clear', unit: '' }
+        ]
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       injectDemoData();
+      renderOrganCards();
+      setupBodyMap();
     });
+
+    function renderOrganCards() {
+      const grid = document.getElementById('organs-grid');
+      grid.innerHTML = '';
+
+      Object.keys(ORGAN_DATA).forEach(key => {
+        const organ = ORGAN_DATA[key];
+        const card = document.createElement('div');
+        card.className = 'organ-card-enhanced';
+        card.style.setProperty('--organ-color', organ.color);
+        card.style.setProperty('--organ-color-dark', organ.colorDark);
+        card.style.setProperty('--health', organ.health);
+
+        card.innerHTML = `
+          <div class="organ-preview">
+            <div class="organ-status-badge ${organ.status}">
+              <i class="ph-fill ${organ.status === 'healthy' ? 'ph-check' : 'ph-warning'}"></i>
+              ${organ.status === 'healthy' ? 'Healthy' : 'Monitor'}
+            </div>
+            <model-viewer 
+              src="${organ.model}" 
+              camera-controls 
+              auto-rotate 
+              shadow-intensity="0.7"
+              interaction-prompt="none"
+              style="width: 100%; height: 100%;">
+            </model-viewer>
+          </div>
+          <div class="organ-info">
+            <div class="organ-header">
+              <div class="organ-icon">
+                <i class="ph-fill ${organ.icon}"></i>
+              </div>
+              <div class="organ-title">
+                <h3>${organ.name}</h3>
+                <p>${organ.subtitle}</p>
+              </div>
+              <div class="health-ring">
+                <span>${organ.health}</span>
+              </div>
+            </div>
+            
+            <div class="organ-metrics">
+              ${organ.metrics.map(m => `
+                <div class="metric-item">
+                  <div class="metric-label">${m.label}</div>
+                  <div class="metric-value">${m.value}<small>${m.unit}</small></div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="organ-actions">
+              <button class="organ-btn" onclick="viewDetails('${key}')">
+                <i class="ph-bold ph-info"></i> Details
+              </button>
+              <button class="organ-btn" onclick="viewReports('${key}')">
+                <i class="ph-bold ph-file-text"></i> Reports
+              </button>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function setupBodyMap() {
+      document.querySelectorAll('.body-hotspot').forEach(hotspot => {
+        hotspot.addEventListener('click', () => {
+          const organ = hotspot.dataset.organ;
+          alert(`Selected: ${organ.toUpperCase()}\n\nThis will open detailed organ analysis.`);
+          // In production, this would open a modal or navigate to detail page
+        });
+      });
+    }
+
+    window.viewDetails = (organ) => {
+      window.location.href = `patient-dashboard.html?organ=${organ}`;
+    };
+
+    window.viewReports = (organ) => {
+      window.location.href = `patient-labs.html?filter=${organ}`;
+    };
   </script>
 </body>
 

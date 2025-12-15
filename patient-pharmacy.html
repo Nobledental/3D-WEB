@@ -3,142 +3,421 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HealthFlo Pharmacy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthFlo - Pharmacy & Medications</title>
 
-  <!-- Icons & Fonts -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
-
-  <!-- Shared Theme -->
   <link rel="stylesheet" href="css/dashboard-theme.css">
-  <!-- Preserving specific pharmacy styles if needed, or we might rely on dashboard theme -->
-  <link rel="stylesheet" href="css/patient-pharmacy.css">
 
   <style>
-    /* Specific overrides for Pharmacy to fit dashboard theme */
-    .pharm-shell {
-      background: transparent !important;
-      color: inherit !important;
+    /* =====PHARMACY & MEDICATION PAGE===== */
+    .main-content {
+      padding: 30px;
+      max-width: 1800px;
+      margin: 0 auto;
     }
 
-    .hf-header {
-      display: none !important;
+    /* Med Schedule Timeline */
+    .timeline-container {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 30px;
     }
 
-    /* Hide old header */
-    .promo-card {
-      background-size: cover;
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      padding: 20px;
-      color: white;
+    .timeline-header {
       display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      height: 200px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
     }
 
-    .promo-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-      z-index: 1;
+    .timeline {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 16px;
     }
 
-    .promo-card * {
-      position: relative;
-      z-index: 2;
+    .time-slot {
+      min-width: 200px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
     }
 
-    .promo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
+    .time-slot:hover {
+      transform: translateY(-4px);
+      border-color: var(--color-blue);
     }
 
-    /* Grid Adjustments */
-    .store-grid,
+    .time-slot.due {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05));
+      border-color: var(--color-yellow);
+    }
+
+    .time-slot.taken {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+      border-color: var(--color-green);
+    }
+
+    .time-label {
+      font-size: 24px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .med-pill-item {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--pill-color), var(--pill-color-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: white;
+    }
+
+    .med-info {
+      flex: 1;
+    }
+
+    .med-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .med-dosage {
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    /* Active Medications Grid */
     .meds-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
     }
 
-    .bento-card {
+    .med-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .med-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--med-color);
+    }
+
+    .med-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .med-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .med-icon-large {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--med-color), var(--med-color-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .med-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 6px 0;
+    }
+
+    .med-subtitle {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    .stock-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    .stock-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .stock-fill {
+      height: 100%;
+      background: var(--stock-color);
+      width: var(--stock-level);
+      transition: width 0.5s ease;
+    }
+
+    .refill-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .refill-badge.low {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--color-red);
+    }
+
+    .refill-badge.ok {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--color-green);
+    }
+
+    /* Drug Interaction Checker */
+    .interaction-checker {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .interaction-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .interaction-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--color-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+    }
+
+    .interaction-result {
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    /* Quick Add Button */
+    .add-med-fab {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-blue), var(--color-purple));
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+      transition: all 0.3s ease;
+      z-index: 50;
+    }
+
+    .add-med-fab:hover {
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.6);
+    }
+
+    /* Section */
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      margin: 40px 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--color-blue), var(--color-purple));
+      border-radius: 2px;
+    }
+
+    /* Stats Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
       padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
     }
 
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-      align-items: center;
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--stat-color);
     }
 
-    .filters label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--stat-color);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
       font-size: 12px;
-      color: var(--text-muted);
+      opacity: 0.6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .filters input,
-    .filters select {
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
-
-    /* Modal Adjustments */
-    .modal {
+    /* Modal */
+    .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(5px);
-      z-index: 100;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
       display: none;
       align-items: center;
       justify-content: center;
+      z-index: 1000;
     }
 
-    .modal[aria-hidden="false"] {
+    .modal-overlay.active {
       display: flex;
     }
 
-    .sheet {
-      background: #1a1f2b;
+    .modal-content {
       width: 90%;
-      max-width: 800px;
-      border-radius: 20px;
-      padding: 30px;
+      max-width: 600px;
+      background: #13161c;
+      border-radius: 24px;
       border: 1px solid var(--glass-border);
-      max-height: 90vh;
-      overflow-y: auto;
+      overflow: hidden;
     }
 
-    .sheet-head {
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--glass-border);
       display: flex;
       justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
       margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--color-blue);
+    }
+
+    @media (max-width: 768px) {
+      .meds-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline {
+        flex-direction: column;
+      }
+
+      .time-slot {
+        min-width: 100%;
+      }
     }
   </style>
 </head>
 
 <body>
-
   <div class="app-container">
-    <!-- BROWSER BAR (Shared) -->
     <div class="browser-bar">
       <div class="window-controls">
         <div class="window-dot" style="background: #ef4444;"></div>
@@ -149,209 +428,397 @@
     </div>
 
     <div class="dashboard-body">
-      <!-- SIDEBAR (Shared) -->
       <div class="sidebar">
         <div class="logo">H<span>+</span></div>
-        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span class="menu-label"
-            data-i18n="dashboard">Dashboard</span></a>
-        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span class="menu-label"
-            data-i18n="health">Health</span></a>
-        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span class="menu-label"
-            data-i18n="organs">Organs</span></a>
-        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span class="menu-label"
-            data-i18n="labs">Labs</span></a>
-        <!-- Active State for Pharmacy -->
-        <a class="menu-item active" href="patient-pharmacy.html"><i class="ph-fill ph-pill"></i><span class="menu-label"
-            data-i18n="pharmacy">Pharmacy</span></a>
-        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span class="menu-label"
-            data-i18n="hospitals">Hospitals</span></a>
-        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span class="menu-label"
-            data-i18n="insurance">Insurance</span></a>
-        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span class="menu-label"
-            data-i18n="log">Log</span></a>
-        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span class="menu-label"
-            data-i18n="devices">Devices</span></a>
-        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span class="menu-label"
-            data-i18n="family">Family</span></a>
-        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span class="menu-label"
-            data-i18n="profile">Profile</span></a>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
+            class="menu-label">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span
+            class="menu-label">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span
+            class="menu-label">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
+            class="menu-label">Labs</span></a>
+        <a class="menu-item active" href="patient-pharmacy.html"><i class="ph-fill ph-pill"></i><span
+            class="menu-label">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+            class="menu-label">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+            class="menu-label">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span
+            class="menu-label">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span
+            class="menu-label">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span
+            class="menu-label">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span
+            class="menu-label">Profile</span></a>
         <div class="sidebar-divider"></div>
-        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span class="menu-label"
-            data-i18n="settings">Settings</span></a>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span
+            class="menu-label">Settings</span></a>
         <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
-            class="menu-label" data-i18n="exit">Exit</span></a>
+            class="menu-label">Exit</span></a>
       </div>
 
       <div class="main-content">
-
         <div class="header-section">
           <div class="header-left">
             <div class="page-title">
-              <h2>Medication & Orders</h2>
-              <h1>Pharmacy <span>OS</span></h1>
+              <h2>Medication Management</h2>
+              <h1>Pharmacy <span>Hub</span></h1>
             </div>
-          </div>
-          <div class="top-toggles">
-            <div class="toggle-pill active" id="viewStores">Stores</div>
-            <div class="toggle-pill" id="viewOrders">Orders</div>
           </div>
         </div>
 
-        <!-- Hero Section Adapted -->
-        <div class="card"
-          style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%);">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card" style="--stat-color: #3b82f6;">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Active Meds</div>
+          </div>
+          <div class="stat-card" style="--stat-color: #10b981;">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Adherence</div>
+          </div>
+          <div class="stat-card" style="--stat-color: #f59e0b;">
+            <div class="stat-value">2</div>
+            <div class="stat-label">Refills Due</div>
+          </div>
+          <div class="stat-card" style="--stat-color: #8b5cf6;">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Interactions</div>
+          </div>
+        </div>
+
+        <!-- Today's Schedule -->
+        <div class="section-title">
+          <i class="ph-fill ph-clock"></i> Today's Medication Schedule
+        </div>
+        <div class="timeline-container">
+          <div class="timeline-header">
             <div>
-              <span class="pill soft" style="margin-bottom:10px; display:inline-block;">Hospital Grade</span>
-              <h2 style="font-size:24px; margin-bottom:8px;">Authentic Medicines, Validated Supply</h2>
-              <p style="opacity:0.7; max-width:600px;">Every order is routed through our HealthFlo buffer for
-                temperature checks and interaction screening.</p>
-              <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="primary" id="ctaOrder">New Order</button>
-                <button class="toggle-pill" id="ctaLocate"><i class="ph-fill ph-map-pin"></i> Locate Nearby</button>
+              <h3 style="font-size: 18px; margin: 0 0 4px 0;">Today - December 16, 2025</h3>
+              <p style="opacity: 0.6; margin: 0; font-size: 13px;">5 doses scheduled</p>
+            </div>
+            <button class="pill primary" onclick="markAllTaken()">
+              <i class="ph-bold ph-check-circle"></i> Mark All Taken
+            </button>
+          </div>
+          <div class="timeline" id="timeline">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Active Medications -->
+        <div class="section-title">
+          <i class="ph-fill ph-pill"></i> Active Medications
+        </div>
+        <div class="meds-grid" id="meds-grid">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Drug Interaction Checker -->
+        <div class="interaction-checker">
+          <div class="interaction-header">
+            <div class="interaction-icon">
+              <i class="ph-fill ph-shield-warning"></i>
+            </div>
+            <div style="flex: 1;">
+              <h3 style="font-size: 18px; margin: 0 0 4px 0;">Drug Interaction Checker</h3>
+              <p style="opacity: 0.6; margin: 0; font-size: 13px;">AI-powered safety analysis</p>
+            </div>
+            <button class="pill ghost" onclick="runInteractionCheck()">
+              <i class="ph-bold ph-scan"></i> Run Check
+            </button>
+          </div>
+          <div class="interaction-result" id="interaction-result">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <i class="ph-fill ph-check-circle" style="color: var(--color-green); font-size: 24px;"></i>
+              <div>
+                <strong style="color: var(--color-green);">No Interactions Detected</strong>
+                <p style="font-size: 12px; opacity: 0.7; margin: 4px 0 0 0;">Your current medications are safe to take
+                  together.</p>
               </div>
             </div>
-            <div style="text-align:right;">
-              <div style="font-size:32px; font-weight:700; color:var(--color-blue); display:none;" id="deliveryStatus">
-                Live</div>
-              <div style="font-size:12px; opacity:0.6; display:none;" id="deliveryLabel">Delivery Tracking</div>
-            </div>
           </div>
         </div>
-
-        <!-- Dashboards Block -->
-        <div class="grid-2">
-          <!-- Dashboard 2: Stores -->
-          <div class="card" id="dashboardStores">
-            <div class="card-head">
-              <h3><i class="ph-fill ph-storefront" style="color:var(--color-green); margin-right:8px;"></i> Hospital
-                Pharmacies</h3>
-            </div>
-            <div class="filters">
-              <label><input id="searchLocation" type="search" placeholder="City or Pin" style="width:120px;" /></label>
-              <label><select id="fulfilmentFilter">
-                  <option value="">Any Mode</option>
-                  <option value="delivery">Delivery</option>
-                </select></label>
-              <label><input id="includeBuffer" type="checkbox" checked /> Buffer</label>
-            </div>
-            <div class="store-grid" id="storeGrid" style="min-height:100px;">
-              <!-- Populated by JS -->
-              <div style="text-align:center; padding:20px; opacity:0.5;">Loading pharmacies...</div>
-            </div>
-          </div>
-
-          <!-- Dashboard 1: Meds -->
-          <div class="card" id="dashboardMeds">
-            <div class="card-head">
-              <h3><i class="ph-fill ph-pill" style="color:var(--color-blue); margin-right:8px;"></i> Medicine Search
-              </h3>
-            </div>
-            <div class="filters">
-              <input id="searchMeds" type="search" placeholder="Search medicines..." style="flex:1;" />
-              <select id="therapeuticFilter">
-                <option value="">All Types</option>
-                <option>Antibiotic</option>
-                <option>Diabetes</option>
-              </select>
-            </div>
-            <div class="meds-grid" id="medsGrid" style="min-height:100px;">
-              <!-- Populated by JS -->
-              <div style="text-align:center; padding:20px; opacity:0.5;">Search to see medicines</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Promo Rail -->
-        <div class="section-header">
-          <div class="blue-dot"></div> Trending Categories
-        </div>
-        <div class="promo-grid">
-          <article class="promo-card"
-            style="background-image:url('https://images.unsplash.com/photo-1582719478171-2f2df97e9748?auto=format&fit=crop&w=600&q=80');">
-            <h3>Ortho Care</h3>
-            <p>Discounted braces & supports</p>
-          </article>
-          <article class="promo-card"
-            style="background-image:url('https://images.unsplash.com/photo-1582719478188-2f2df97e9748?auto=format&fit=crop&w=600&q=80');">
-            <h3>Diabetes</h3>
-            <p>Insulin & Monitors</p>
-          </article>
-          <article class="promo-card"
-            style="background-image:url('https://images.unsplash.com/photo-1588710920535-1f2081b3bb3b?auto=format&fit=crop&w=600&q=80');">
-            <h3>Wellness</h3>
-            <p>Vitamins & Supplements</p>
-          </article>
-        </div>
-
       </div>
     </div>
   </div>
 
-  <!-- Modals -->
-  <div id="storeModal" class="modal" aria-hidden="true">
-    <div class="sheet">
-      <header class="sheet-head">
-        <h3 id="storeTitle">Store Inventory</h3>
-        <button id="storeClose" class="pill ghost">Close</button>
-      </header>
-      <div id="storeMedGrid" class="meds-grid"></div>
-    </div>
-  </div>
+  <!-- Add Medication FAB -->
+  <button class="add-med-fab" onclick="openAddModal()">
+    <i class="ph-bold ph-plus"></i>
+  </button>
 
-  <div id="medDetail" class="modal" aria-hidden="true">
-    <div class="sheet">
-      <header class="sheet-head">
-        <h3 id="medTitle">Medicine Details</h3>
-        <button id="btnMedClose" class="pill ghost">Close</button>
-      </header>
-      <div class="med-detail-body">
-        <div id="medPrice" style="font-size:24px; font-weight:700; color:var(--color-blue); margin-bottom:10px;"></div>
-        <p id="medNotes" class="muted"></p>
-        <div id="medTags" style="display:flex; gap:10px; margin:15px 0;"></div>
-        <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
-        <h4>Generic Substitutes</h4>
-        <div id="subGrid" class="meds-grid mini"></div>
+  <!-- Add Medication Modal -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 style="margin: 0;">Add Medication</h3>
+          <p style="margin: 4px 0 0 0; opacity: 0.6; font-size: 12px;">Track your prescription</p>
+        </div>
+        <button onclick="closeAddModal()"
+          style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Medication Name</label>
+          <input type="text" placeholder="e.g., Metformin" id="med-name">
+        </div>
+        <div class="form-group">
+          <label>Dosage</label>
+          <input type="text" placeholder="e.g., 500mg" id="med-dosage">
+        </div>
+        <div class="form-group">
+          <label>Frequency</label>
+          <select id="med-frequency">
+            <option>Once daily</option>
+            <option>Twice daily</option>
+            <option>Three times daily</option>
+            <option>As needed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Stock (Pills)</label>
+          <input type="number" placeholder="30" id="med-stock">
+        </div>
+        <button class="pill primary" style="width: 100%; margin-top: 16px;" onclick="addMedication()">
+          <i class="ph-bold ph-plus-circle"></i> Add Medication
+        </button>
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { injectDemoData } from './js/demo-data.js';
-    import { ServiceSync } from './js/services-sync.js';
-    import { translatePage } from './js/localization.js';
-    import { CartEngine } from './js/cart-engine.js';
+    import { DemoUsers, injectDemoData } from './js/demo-data.js';
+
+    const MEDICATIONS = [
+      {
+        id: 1,
+        name: 'Metformin',
+        dosage: '500mg',
+        frequency: 'Twice daily',
+        times: ['08:00 AM', '08:00 PM'],
+        stock: 28,
+        refillDate: '2025-12-30',
+        color: '#3b82f6',
+        colorDark: '#2563eb',
+        category: 'Diabetes'
+      },
+      {
+        id: 2,
+        name: 'Lisinopril',
+        dosage: '10mg',
+        frequency: 'Once daily',
+        times: ['09:00 AM'],
+        stock: 45,
+        refillDate: '2026-01-15',
+        color: '#ef4444',
+        colorDark: '#dc2626',
+        category: 'Blood Pressure'
+      },
+      {
+        id: 3,
+        name: 'Atorvastatin',
+        dosage: '20mg',
+        frequency: 'Once daily',
+        times: ['10:00 PM'],
+        stock: 12,
+        refillDate: '2025-12-20',
+        color: '#8b5cf6',
+        colorDark: '#7c3aed',
+        category: 'Cholesterol'
+      },
+      {
+        id: 4,
+        name: 'Aspirin',
+        dosage: '81mg',
+        frequency: 'Once daily',
+        times: ['08:00 AM'],
+        stock: 60,
+        refillDate: '2026-02-01',
+        color: '#10b981',
+        colorDark: '#059669',
+        category: 'Cardio'
+      },
+      {
+        id: 5,
+        name: 'Vitamin D3',
+        dosage: '2000 IU',
+        frequency: 'Once daily',
+        times: ['12:00 PM'],
+        stock: 90,
+        refillDate: '2026-03-01',
+        color: '#f59e0b',
+        colorDark: '#d97706',
+        category: 'Supplement'
+      }
+    ];
+
+    const TIME_SLOTS = [
+      { time: '08:00 AM', meds: [1, 4], status: 'taken' },
+      { time: '09:00 AM', meds: [2], status: 'taken' },
+      { time: '12:00 PM', meds: [5], status: 'due' },
+      { time: '08:00 PM', meds: [1], status: 'upcoming' },
+      { time: '10:00 PM', meds: [3], status: 'upcoming' }
+    ];
 
     document.addEventListener('DOMContentLoaded', () => {
       injectDemoData();
-      CartEngine.init();
-      translatePage(localStorage.getItem('hf_lang') || 'en');
-
-      // Since Pharmacy page logic is complex and might be in patient-pharmacy.js, 
-      // we inject a global intercept for "Checkout/Order" if possible, 
-      // OR we just wire the "New Order" button for this demo simulation.
-
-      const ctaOrder = document.getElementById('ctaOrder');
-      if (ctaOrder) {
-        ctaOrder.onclick = () => {
-          // 1. Add to Cart
-          CartEngine.addItem({
-            id: Date.now(),
-            type: 'pharmacy',
-            title: 'Medicine Refill',
-            subtitle: 'Apollo Pharmacy',
-            price: 450,
-            meta: '3 Items'
-          });
-
-          // 2. Visual
-          alert("Added Medicines to Cart");
-          CartEngine.open();
-        };
-      }
+      renderTimeline();
+      renderMedicationCards();
     });
+
+    function renderTimeline() {
+      const timeline = document.getElementById('timeline');
+      timeline.innerHTML = '';
+
+      TIME_SLOTS.forEach(slot => {
+        const div = document.createElement('div');
+        div.className = `time-slot ${slot.status}`;
+
+        const status = slot.status === 'taken' ? '✓ Taken' : slot.status === 'due' ? '⚠️ Due Now' : 'Upcoming';
+
+        div.innerHTML = `
+          <div class="time-label">${slot.time}</div>
+          <div style="font-size: 11px; opacity: 0.6; margin-bottom: 8px;">${status}</div>
+          ${slot.meds.map(medId => {
+          const med = MEDICATIONS.find(m => m.id === medId);
+          return `
+              <div class="med-pill-item" style="--pill-color: ${med.color}; --pill-color-dark: ${med.colorDark};">
+                <div class="pill-icon"><i class="ph-fill ph-pill"></i></div>
+                <div class="med-info">
+                  <div class="med-name">${med.name}</div>
+                  <div class="med-dosage">${med.dosage}</div>
+                </div>
+                ${slot.status !== 'taken' ? `<i class="ph-bold ph-circle" style="color: rgba(255,255,255,0.3);"></i>` : `<i class="ph-fill ph-check-circle" style="color: var(--color-green);"></i>`}
+              </div>
+            `;
+        }).join('')}
+        `;
+
+        timeline.appendChild(div);
+      });
+    }
+
+    function renderMedicationCards() {
+      const grid = document.getElementById('meds-grid');
+      grid.innerHTML = '';
+
+      MEDICATIONS.forEach(med => {
+        const stockLevel = (med.stock / 90) * 100;
+        const stockColor = stockLevel < 20 ? '#ef4444' : stockLevel < 50 ? '#f59e0b' : '#10b981';
+        const needsRefill = stockLevel < 20;
+
+        const card = document.createElement('div');
+        card.className = 'med-card';
+        card.style.setProperty('--med-color', med.color);
+        card.style.setProperty('--med-color-dark', med.colorDark);
+
+        card.innerHTML = `
+          <div class="med-icon-large">
+            <i class="ph-fill ph-pill"></i>
+          </div>
+          <div class="med-header">
+            <div style="flex: 1;">
+              <h3 class="med-title">${med.name}</h3>
+              <p class="med-subtitle">${med.dosage} • ${med.frequency}</p>
+            </div>
+            <span class="refill-badge ${needsRefill ? 'low' : 'ok'}">
+              ${needsRefill ? 'Refill Soon' : 'Stock OK'}
+            </span>
+          </div>
+
+          <div style="margin: 16px 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+              <span style="opacity: 0.6;">Daily Times</span>
+              <span style="color: var(--med-color); font-weight: 600;">${med.times.join(', ')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+              <span style="opacity: 0.6;">Category</span>
+              <span style="font-weight: 600;">${med.category}</span>
+            </div>
+          </div>
+
+          <div class="stock-indicator" style="--stock-color: ${stockColor}; --stock-level: ${stockLevel}%;">
+            <div style="font-size: 11px; opacity: 0.6;">Stock:</div>
+            <div class="stock-bar">
+              <div class="stock-fill"></div>
+            </div>
+            <div style="font-size: 12px; font-weight: 700;">${med.stock} pills</div>
+          </div>
+
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 8px;">
+            <button class="pill ghost" style="flex: 1; font-size: 12px;" onclick="editMed(${med.id})">
+              <i class="ph-bold ph-pencil-simple"></i> Edit
+            </button>
+            <button class="pill ghost" style="flex: 1; font-size: 12px;" onclick="orderRefill(${med.id})">
+              <i class="ph-bold ph-shopping-cart"></i> Refill
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    window.markAllTaken = () => {
+      alert('All medications marked as taken!\n\nThis will update your adherence record and send confirmation to your healthcare provider.');
+    };
+
+    window.runInteractionCheck = () => {
+      const result = document.getElementById('interaction-result');
+      result.innerHTML = '<div style="text-align: center; opacity: 0.6;">Analyzing medications...</div>';
+
+      setTimeout(() => {
+        result.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="ph-fill ph-check-circle" style="color: var(--color-green); font-size: 24px;"></i>
+            <div>
+              <strong style="color: var(--color-green);">✓ No Interactions Detected</strong>
+              <p style="font-size: 12px; opacity: 0.7; margin: 4px 0 0 0;">Your current medications are safe to take together. Last checked: ${new Date().toLocaleString()}</p>
+            </div>
+          </div>
+        `;
+      }, 1500);
+    };
+
+    window.openAddModal = () => {
+      document.getElementById('add-modal').classList.add('active');
+    };
+
+    window.closeAddModal = () => {
+      document.getElementById('add-modal').classList.remove('active');
+    };
+
+    window.addMedication = () => {
+      const name = document.getElementById('med-name').value;
+      const dosage = document.getElementById('med-dosage').value;
+
+      if (!name || !dosage) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      alert(`Medication Added!\n\nName: ${name}\nDosage: ${dosage}\n\nYou can now track this medication in your schedule.`);
+      closeAddModal();
+
+      // In production, this would add to MEDICATIONS array and re-render
+    };
+
+    window.editMed = (id) => {
+      const med = MEDICATIONS.find(m => m.id === id);
+      alert(`Edit Medication: ${med.name}\n\nThis would open the edit interface for ${med.name}.`);
+    };
+
+    window.orderRefill = (id) => {
+      const med = MEDICATIONS.find(m => m.id === id);
+      alert(`Order Refill: ${med.name}\n\nConnecting to pharmacy network...\n\nYou can order ${med.name} from nearby pharmacies with home delivery.`);
+    };
   </script>
-  <script src="js/patient-pharmacy.js"></script>
 </body>
 
 </html>
