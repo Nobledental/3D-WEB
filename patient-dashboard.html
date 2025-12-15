@@ -2060,6 +2060,87 @@
                     </div>
 
                 </div>
+
+                <!-- Family Health Section -->
+                <div class="divider-row">
+                    <div class="divider-line"></div>
+                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted);">
+                        FAMILY HEALTH</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="v2-grid" style="margin-top: 20px;">
+                    <div class="module-card">
+                        <div class="section-header">
+                            <div
+                                style="background:rgba(236,72,153,0.15); padding:4px; border-radius:6px; margin-right:8px; color:#ec4899;">
+                                <i class="ph-fill ph-users"></i>
+                            </div> Family Members
+                            <a href="patient-family.html"
+                                style="margin-left:auto; font-size:11px; color:var(--color-blue); text-decoration:none;">View
+                                All →</a>
+                        </div>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <div
+                                style="text-align: center; padding: 15px; background: rgba(59,130,246,0.05); border-radius: 12px; border: 1px solid rgba(59,130,246,0.2);">
+                                <div
+                                    style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#3b82f6,#2563eb); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; color:white;">
+                                    D</div>
+                                <div style="font-size:12px; font-weight:600;">You</div>
+                                <div style="font-size: 20px; font-weight: 800; color: #3b82f6; margin-top: 8px;">87
+                                </div>
+                                <div style="font-size:10px; opacity:0.6;">Health Score</div>
+                            </div>
+                            <div
+                                style="text-align: center; padding: 15px; background: rgba(236,72,153,0.05); border-radius: 12px; border: 1px solid rgba(236,72,153,0.2);">
+                                <div
+                                    style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#ec4899,#db2777); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; color:white;">
+                                    P</div>
+                                <div style="font-size:12px; font-weight:600;">Priya</div>
+                                <div style="font-size: 20px; font-weight: 800; color: #ec4899; margin-top: 8px;">92
+                                </div>
+                                <div style="font-size:10px; opacity:0.6;">Spouse</div>
+                            </div>
+                            <div
+                                style="text-align: center; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 12px; border: 1px solid rgba(16,185,129,0.2);">
+                                <div
+                                    style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#10b981,#059669); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; color:white;">
+                                    A</div>
+                                <div style="font-size:12px; font-weight:600;">Aarav</div>
+                                <div style="font-size: 20px; font-weight: 800; color: #10b981; margin-top: 8px;">95
+                                </div>
+                                <div style="font-size:10px; opacity:0.6;">Son (8)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="section-header">
+                            <div
+                                style="background:rgba(239,68,68,0.15); padding:4px; border-radius:6px; margin-right:8px; color:#ef4444;">
+                                <i class="ph-fill ph-warning-octagon"></i>
+                            </div> Emergency SOS
+                        </div>
+                        <div id="sos-panel"
+                            style="padding: 20px; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; margin-top: 15px; text-align: center;">
+                            <i class="ph-fill ph-heartbeat"
+                                style="font-size: 48px; color: #ef4444; margin-bottom: 12px; display: block;"></i>
+                            <h3 style="margin: 0 0 8px 0; font-size: 18px;">Need Immediate Help?</h3>
+                            <p style="margin: 0 0 20px 0; font-size: 12px; opacity: 0.7;">Press the button below to
+                                dispatch emergency services</p>
+                            <button id="sos-button" class="ai-btn"
+                                style="background: #ef4444; color: white; width: 100%; font-size: 16px; font-weight: 700; padding: 16px;"
+                                onclick="triggerSOS()">
+                                <i class="ph-bold ph-warning-octagon"></i> EMERGENCY SOS
+                            </button>
+                            <div style="margin-top: 15px; font-size: 11px; opacity: 0.6;">
+                                <div>Emergency Contact: +91 98765 43210</div>
+                                <div style="margin-top: 4px;">Location: Chennai, TN • GPS Enabled</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
