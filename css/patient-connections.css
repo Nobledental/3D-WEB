@@ -1,0 +1,95 @@
+.connection-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--grid-gap);
+  margin: 1rem 0;
+}
+
+.connection-hero .hero-card {
+  background: var(--bg-soft);
+  border: var(--border);
+  border-radius: var(--card-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.connection-hero .hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--grid-gap);
+}
+
+.device-card,
+.family-card {
+  background: var(--bg-soft);
+  border: var(--border);
+  border-radius: var(--card-radius);
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.device-meta,
+.family-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.badge.soft {
+  background: var(--bg-glass);
+  border: var(--border);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inline-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.notice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.table-card {
+  background: var(--bg-soft);
+  border: var(--border);
+  border-radius: var(--card-radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text);
+}
+
+.table-card th,
+.table-card td {
+  text-align: left;
+  padding: 0.65rem 0.5rem;
+  border-bottom: var(--border);
+}
+
+@media (max-width: 900px) {
+  .connection-hero { grid-template-columns: 1fr; }
+}
