@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Labs</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+  <!-- Preserving specific lab styles -->
+  <link rel="stylesheet" href="css/patient-labs.css">
+
+  <style>
+    /* Overrides */
+    .hf-header {
+      display: none !important;
+    }
+
+    .hero {
+      display: none !important;
+    }
+
+    .hf-body {
+      background: transparent !important;
+      color: white !important;
+    }
+
+    .toolbar,
+    .metrics {
+      background: transparent !important;
+      border: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    /* Grid Adjustments */
+    .grid-section .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .lab-bento {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .bento-card,
+    .bento-tile {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .bento-card.prime {
+      grid-column: span 2;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.05));
+    }
+
+    /* Modal Adjustments */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal[aria-hidden="false"] {
+      display: flex;
+    }
+
+    .sheet {
+      width: 90%;
+      max-width: 900px;
+      height: 90vh;
+      background: #13161c;
+      border-radius: 24px;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sheet-head {
+      padding: 20px;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #333;
+    }
+
+    .panels {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.is-active {
+      display: block;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--glass-border);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 15px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: 0.2s;
+      font-weight: 600;
+    }
+
+    .tab.is-active {
+      color: var(--color-blue);
+      border-bottom-color: var(--color-blue);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* Template Card Styles override for dark theme */
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border) !important;
+      color: white;
+    }
+
+    .card .title {
+      color: white !important;
+    }
+
+    .card .sub {
+      color: var(--text-muted) !important;
+    }
+
+    /* Filter Bar */
+    .toolbar .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      background: var(--glass-bg);
+      padding: 15px;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .field.search input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .field select {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      color: white;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    /* Report Vault */
+    .report-vault {
+      margin-top: 40px;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .report-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid var(--glass-border);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR (Shared) -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR (Shared) -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span class="menu-label"
+            data-i18n="dashboard">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span class="menu-label"
+            data-i18n="health">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span class="menu-label"
+            data-i18n="organs">Organs</span></a>
+        <!-- Active State for Labs -->
+        <a class="menu-item active" href="patient-labs.html"><i class="ph-fill ph-flask"></i><span class="menu-label"
+            data-i18n="labs">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span class="menu-label"
+            data-i18n="pharmacy">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span class="menu-label"
+            data-i18n="hospitals">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span class="menu-label"
+            data-i18n="insurance">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span class="menu-label"
+            data-i18n="log">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span class="menu-label"
+            data-i18n="devices">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span class="menu-label"
+            data-i18n="family">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span class="menu-label"
+            data-i18n="profile">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span class="menu-label"
+            data-i18n="settings">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label" data-i18n="exit">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>Diagnostics</h2>
+              <h1>Labs & <span>Tests</span></h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento / Stats Section -->
+        <section class="lab-bento" aria-label="Premium lab shortcuts">
+          <div class="bento-card prime">
+            <div class="card-top" style="display:flex; justify-content:space-between;">
+              <div>
+                <p class="eyebrow"
+                  style="color:var(--color-blue); text-transform:uppercase; font-size:11px; font-weight:700;">Live
+                  Concierge</p>
+                <h3 style="font-size:20px; font-weight:700;">Curated picks near you</h3>
+                <p class="muted" style="margin-top:5px; opacity:0.7;">Smartly arranges nearest, fastest reporting, and
+                  best home experience.</p>
+              </div>
+              <button class="pill primary" type="button">Auto-book best slot</button>
+            </div>
+            <div style="display:flex; gap:20px; margin-top:15px;">
+              <div><strong id="statCoverage" style="font-size:18px;">—</strong>
+                <div class="muted" style="font-size:12px;">Cities</div>
+              </div>
+              <div><strong style="font-size:18px;">WhatsApp</strong>
+                <div class="muted" style="font-size:12px;">Ready</div>
+              </div>
+            </div>
+          </div>
+          <article class="bento-tile">
+            <h4 style="font-size:14px; margin-bottom:5px;">Home Pickup</h4>
+            <p class="muted" style="font-size:12px; line-height:1.4;">Phlebotomist rating and spill-safe kit reminders
+              baked in.</p>
+          </article>
+          <article class="bento-tile">
+            <h4 style="font-size:14px; margin-bottom:5px;">Avg Home Fee</h4>
+            <p class="muted" style="font-size:12px;"><span id="statHomeRange"
+                style="color:white; font-weight:700;">—</span></p>
+          </article>
+        </section>
+
+        <!-- Filters -->
+        <section class="toolbar">
+          <div class="wrap">
+            <div class="field search" style="flex:1;">
+              <input id="searchInput" type="search" placeholder="Search lab, test (CBC, Lipid)..." style="width:100%;">
+            </div>
+            <div class="field">
+              <select id="cityFilter">
+                <option value="">All Cities</option>
+                <option>Mumbai</option>
+                <option>Delhi</option>
+                <option>Bengaluru</option>
+              </select>
+            </div>
+            <label class="switch" style="display:flex; align-items:center; gap:8px; font-size:13px;">
+              <input id="homeOnly" type="checkbox"> <span>Home visit only</span>
+            </label>
+            <button id="btnLocate" class="pill ghost">Use Location</button>
+          </div>
+        </section>
+
+        <!-- Main Grid -->
+        <main class="grid-section">
+          <div id="labGrid" class="grid" aria-live="polite">
+            <!-- JS injects cards -->
+            <div style="text-align:center; padding:40px; grid-column:1/-1; opacity:0.5;">Loading labs...</div>
+          </div>
+        </main>
+
+        <!-- Live Phlebotomist Tracker -->
+        <div id="phleboTracker" class="card" style="margin-top:30px; border-color:var(--color-purple); display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="color:white; font-size:16px; display:flex; align-items:center; gap:8px;">
+              <i class="ph-fill ph-moped" style="color:var(--color-purple);"></i> Home Collection Live
+            </h3>
+            <span class="pill soft purple">Arriving in 12m</span>
+          </div>
+          <div style="height:120px; background:#111; border-radius:12px; position:relative; overflow:hidden;">
+            <!-- Simulated Map Route -->
+            <svg width="100%" height="100%">
+              <path d="M 50 60 Q 150 10 250 60 T 450 60" stroke="#444" stroke-width="4" fill="none"
+                stroke-dasharray="5,5" />
+              <circle cx="250" cy="60" r="6" fill="var(--color-purple)">
+                <animate attributeName="cx" values="50;450" dur="10s" repeatCount="indefinite" />
+                <animate attributeName="cy" values="60;10;60;60" dur="10s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+            <div style="position:absolute; bottom:10px; right:10px; font-size:10px; color:gray;">Simulated Map View
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Vault -->
+        <section class="report-vault">
+          <header class="vault-head"
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="font-size:18px;">Recent Reports</h2>
+            <span class="pill soft">Synced to Health</span>
+          </header>
+          <div id="labReportShelf" class="report-grid"></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates (Preserved structure for JS) -->
+  <template id="tpl-lab-card">
+    <article class="card pressable ripple" tabindex="0" style="padding:0; overflow:hidden;">
+      <figure class="media" style="height:140px; background:#333; position:relative;">
+        <img src="" alt="" style="width:100%; height:100%; object-fit:cover;">
+        <span class="distance"
+          style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:12px; font-size:11px;">—
+          km</span>
+      </figure>
+      <div class="body" style="padding:15px;">
+        <div class="title-row" style="display:flex; justify-content:space-between;">
+          <h3 class="title" style="font-size:16px; margin:0;">Lab Name</h3>
+          <span class="pill soft doctor-tag" style="font-size:10px;">Doctor lens</span>
+        </div>
+        <div class="sub" style="font-size:12px; margin-top:4px;">Area • City</div>
+        <div class="badges" style="display:flex; gap:5px; margin-top:10px;"></div>
+        <div class="cta" style="display:flex; gap:10px; margin-top:15px;">
+          <button class="pill small primary btn-view">View</button>
+          <a class="pill small ghost btn-call">Call</a>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <template id="tpl-test-row">
+    <div class="test pressable ripple"
+      style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05);">
+      <label style="display:flex; gap:10px; align-items:center;">
+        <input class="pick" type="checkbox">
+        <span class="tname">Test name</span>
+      </label>
+      <div class="price">₹0</div>
+    </div>
+  </template>
+
+  <!-- Lab Modal -->
+  <div id="labModal" class="modal" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div style="display:flex; gap:15px; align-items:center;">
+          <img id="labLogo" class="logo" alt="Lab logo">
+          <div>
+            <h3 id="labTitle" style="font-size:20px; margin:0;">Lab</h3>
+            <div style="font-size:12px; opacity:0.7; margin-top:4px;">
+              <span id="labAreaTxt">City</span> • <span id="labDistance">— km</span>
+            </div>
+          </div>
+        </div>
+        <button id="labClose" class="pill ghost">Close</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab is-active" data-tab="blood">Blood Tests</button>
+        <button class="tab" data-tab="radiology">Radiology</button>
+        <button class="tab" data-tab="book">Book</button>
+        <button class="tab" data-tab="about">About</button>
+      </div>
+
+      <div class="panels">
+        <!-- Blood Panel -->
+        <section id="panel-blood" class="panel is-active">
+          <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <input id="bloodSearch" type="search" placeholder="Search tests..."
+              style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.3); color:white;">
+            <button id="btnBloodClear" class="pill ghost">Clear</button>
+          </div>
+          <div id="bloodList" class="tests"></div>
+          <div
+            style="margin-top:20px; padding-top:10px; border-top:1px solid var(--glass-border); display:flex; justify-content:space-between;">
+            <div>Selected: <strong id="bloodCount">0</strong></div>
+            <div>Total: <strong id="bloodTotal">₹0</strong></div>
+          </div>
+        </section>
+
+        <!-- Radiology Panel -->
+        <section id="panel-radiology" class="panel">
+          <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <input id="radSearch" type="search" placeholder="Search radiology..."
+              style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.3); color:white;">
+          </div>
+          <div id="radList" class="tests"></div>
+        </section>
+
+        <!-- Book Panel -->
+        <section id="panel-book" class="panel">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+            <div>
+              <h4 style="margin-bottom:10px;">Details</h4>
+              <div class="field" style="margin-bottom:10px;">
+                <label style="display:block; font-size:12px; margin-bottom:5px;">Date</label>
+                <input id="bookDate" type="date"
+                  style="width:100%; padding:8px; border-radius:6px; background:#222; border:1px solid #444; color:white;">
+              </div>
+              <div class="field" style="margin-bottom:10px;">
+                <label style="display:block; font-size:12px; margin-bottom:5px;">Name</label>
+                <input id="bookName" type="text" placeholder="Your Name"
+                  style="width:100%; padding:8px; border-radius:6px; background:#222; border:1px solid #444; color:white;">
+              </div>
+              <div class="field" style="margin-bottom:10px;">
+                <label style="display:block; font-size:12px; margin-bottom:5px;">Phone</label>
+                <input id="bookPhone" type="tel" placeholder="Mobile Info"
+                  style="width:100%; padding:8px; border-radius:6px; background:#222; border:1px solid #444; color:white;">
+              </div>
+              <div style="margin-top:20px;">
+                <button id="btnBookConfirm" class="pill primary" style="width:100%;">Confirm Booking</button>
+              </div>
+            </div>
+            <div>
+              <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px;">
+                <div class="h" style="font-weight:700; margin-bottom:10px;">Summary</div>
+                <div id="bookSummary" class="muted" style="font-size:13px; margin-bottom:10px;">No tests selected.</div>
+                <div class="tot" style="font-size:18px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                  Total: <strong id="bookTotal">₹0</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- About Panel -->
+        <section id="panel-about" class="panel">
+          <p id="labAbout" style="line-height:1.6; opacity:0.8;">—</p>
+          <p id="labContact" class="muted" style="margin-top:10px;">—</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { injectDemoData } from './js/demo-data.js';
+    import { ServiceSync } from './js/services-sync.js';
+    import { translatePage } from './js/localization.js';
+    import { CartEngine } from './js/cart-engine.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      injectDemoData();
+      CartEngine.init(); // Init Cart
+      translatePage(localStorage.getItem('hf_lang') || 'en');
+
+      // Wire up Booking
+      const confirmBtn = document.getElementById('btnBookConfirm');
+      if (confirmBtn) {
+        confirmBtn.onclick = () => {
+          const labName = document.getElementById('labTitle').innerText || 'Lab';
+
+          // 1. Add to Cart
+          CartEngine.addItem({
+            id: Date.now(),
+            type: 'lab',
+            title: 'Lab Tests',
+            subtitle: labName,
+            price: 1200,
+            meta: '3 Tests'
+          });
+
+          // 2. Visual
+          confirmBtn.innerText = "Added to Cart";
+          confirmBtn.style.background = "#10b981";
+
+          setTimeout(() => {
+            document.getElementById('labModal').setAttribute('aria-hidden', 'true');
+            CartEngine.open();
+          }, 600);
+        };
+      }
+    });
+  </script>
+  <script src="js/patient-labs.js"></script>
+</body>
+
+</html>

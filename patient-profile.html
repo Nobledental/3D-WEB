@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Profile</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR (Shared) -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR (Shared) -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
+            class="menu-label">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span
+            class="menu-label">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span
+            class="menu-label">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
+            class="menu-label">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span
+            class="menu-label">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+            class="menu-label">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+            class="menu-label">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span
+            class="menu-label">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span
+            class="menu-label">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span
+            class="menu-label">Family</span></a>
+        <a class="menu-item active" href="patient-profile.html"><i class="ph-fill ph-user"></i><span class="menu-label"
+            data-i18n="profile">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span class="menu-label"
+            data-i18n="settings">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label" data-i18n="exit">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>My Details</h2>
+              <h1>Profile & <span>Identity</span></h1>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <!-- Profile Master Card -->
+          <div class="card"
+            style="grid-column: span 1; display:flex; flex-direction:column; align-items:center; text-align:center;">
+            <img src="https://i.pravatar.cc/150?u=dhiva" id="profile-avatar"
+              style="width:120px; height:120px; border-radius:50%; border:3px solid var(--color-blue); margin-bottom:15px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+            <h2 id="user-name-display" style="font-size:24px; color:var(--text-main); margin-bottom:5px;">Dhivakaran
+            </h2>
+            <div style="font-size:12px; color:var(--text-muted); font-weight:700;">ID: <span
+                id="user-id-display">HF-2048-NEO</span></div>
+
+            <div style="margin-top:20px; width:100%; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div
+                style="padding:10px; background:var(--glass-bg); border-radius:12px; border:1px solid var(--glass-border);">
+                <div style="font-size:10px; color:var(--text-muted);">AGE</div>
+                <div style="font-weight:700; font-size:16px;">29</div>
+              </div>
+              <div
+                style="padding:10px; background:var(--glass-bg); border-radius:12px; border:1px solid var(--glass-border);">
+                <div style="font-size:10px; color:var(--text-muted);">BLOOD</div>
+                <div style="font-weight:700; font-size:16px; color:var(--color-red);">O+</div>
+              </div>
+            </div>
+            <button class="primary" style="margin-top:20px; width:100%;">Edit Profile</button>
+          </div>
+
+          <!-- Details & Documents -->
+          <div class="card" style="grid-column: span 2;">
+            <h3><i class="ph-fill ph-folder-notch-open" style="color:var(--color-yellow); margin-right:8px;"></i>
+              Medical Details</h3>
+            <div class="grid-2">
+              <div>
+                <label style="font-size:12px; color:var(--text-muted); font-weight:700;">ALLERGIES</label>
+                <div
+                  style="padding:12px; background:var(--glass-bg); border-radius:8px; border:1px solid var(--glass-border); margin-top:5px; font-size:13px;">
+                  Latex, Penicillin (Moderate)
+                </div>
+              </div>
+              <div>
+                <label style="font-size:12px; color:var(--text-muted); font-weight:700;">EMERGENCY CONTACT</label>
+                <div
+                  style="padding:12px; background:var(--glass-bg); border-radius:8px; border:1px solid var(--glass-border); margin-top:5px; font-size:13px;">
+                  <i class="ph-bold ph-phone" style="margin-right:5px;"></i> Father (+91 99990 00000)
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <h3><i class="ph-fill ph-wallet" style="color:var(--color-green); margin-right:8px;"></i> Wallet &
+                Insurance</h3>
+              <div
+                style="padding:15px; background:linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02)); border:1px solid rgba(16, 185, 129, 0.2); border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-weight:700; color:var(--color-green);">HealthFlo Shield+</div>
+                  <div style="font-size:12px; opacity:0.7;">Policy #8833-2211-00</div>
+                </div>
+                <div
+                  style="padding:4px 10px; background:#10b981; color:black; border-radius:20px; font-weight:700; font-size:11px;">
+                  ACTIVE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><i class="ph-fill ph-wallet" style="color:var(--color-green); margin-right:8px;"></i> Wallet & Payments
+          </h3>
+          <div style="margin-top:15px; display:grid; gap:10px;">
+            <div
+              style="padding:12px; background:var(--glass-bg); border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; gap:10px; align-items:center;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg"
+                  style="width:24px; background:white; border-radius:100px; padding:2px;">
+                <div>
+                  <div style="font-weight:700; font-size:13px;">Google Pay</div>
+                  <div style="font-size:11px; opacity:0.6;">dhiva@oksbi • Linked</div>
+                </div>
+              </div>
+              <button class="pill ghost small">Unlink</button>
+            </div>
+            <div
+              style="padding:12px; background:var(--glass-bg); border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; gap:10px; align-items:center;">
+                <i class="ph-fill ph-credit-card" style="font-size:24px; color:var(--text-muted);"></i>
+                <div>
+                  <div style="font-weight:700; font-size:13px;">HDFC Regalia</div>
+                  <div style="font-size:11px; opacity:0.6;">**** 4432 • Exp 12/28</div>
+                </div>
+              </div>
+              <button class="pill ghost small">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <h3><i class="ph-fill ph-files" style="color:var(--color-blue); margin-right:8px;"></i> Document Vault</h3>
+          <p>Securely stored prescriptions and lab reports.</p>
+          <div class="grid-3" style="margin-top:15px;">
+            <div
+              style="padding:15px; border:1px solid var(--glass-border); border-radius:12px; text-align:center; transition:0.3s; cursor:pointer;"
+              onmouseover="this.style.background='var(--glass-bg)'" onmouseout="this.style.background='transparent'">
+              <i class="ph-fill ph-file-pdf" style="font-size:32px; color:var(--color-red); margin-bottom:10px;"></i>
+              <div style="font-size:13px; font-weight:700;">Blood Work.pdf</div>
+              <div style="font-size:10px; color:var(--text-muted);">Feb 2024</div>
+            </div>
+            <div
+              style="padding:15px; border:1px solid var(--glass-border); border-radius:12px; text-align:center; transition:0.3s; cursor:pointer;"
+              onmouseover="this.style.background='var(--glass-bg)'" onmouseout="this.style.background='transparent'">
+              <i class="ph-fill ph-file-pdf" style="font-size:32px; color:var(--color-red); margin-bottom:10px;"></i>
+              <div style="font-size:13px; font-weight:700;">MRI Scan.pdf</div>
+              <div style="font-size:10px; color:var(--text-muted);">Oct 2023</div>
+            </div>
+            <div
+              style="padding:15px; border:1px dashed var(--glass-border); border-radius:12px; text-align:center; transition:0.3s; cursor:pointer; color:var(--text-muted);"
+              onmouseover="this.style.background='var(--glass-bg)'" onmouseout="this.style.background='transparent'">
+              <i class="ph-bold ph-plus" style="font-size:32px; margin-bottom:10px;"></i>
+              <div style="font-size:13px; font-weight:700;">Upload New</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { injectDemoData } from './js/demo-data.js';
+    import { translatePage } from './js/localization.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      injectDemoData();
+      translatePage(localStorage.getItem('hf_lang') || 'en');
+    });
+  </script>
+</body>
+
+</html>

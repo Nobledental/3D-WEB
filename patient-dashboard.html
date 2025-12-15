@@ -1,0 +1,3526 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HealthFlo Ultimate: Clinical V3 Hybrid</title>
+
+    <!-- Icons & Fonts -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- 3D Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <style>
+        /* --- CORE THEME VARIABLES --- */
+        :root {
+            /* Default Dark Theme */
+            --bg-radial: radial-gradient(circle at 20% 30%, #506176 0%, #1a1f2b 55%, #0E121B 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(24px);
+
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --text-inverse: #000000;
+
+            --color-blue: #0A84FF;
+            --color-yellow: #f59e0b;
+            --color-red: #ef4444;
+            --color-green: #10b981;
+            --color-purple: #8b5cf6;
+
+            --card-bg: rgba(22, 28, 38, 0.6);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --card-active-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+
+            --sidebar-bg: rgba(255, 255, 255, 0.02);
+            --browser-bar-bg: rgba(0, 0, 0, 0.2);
+            --divider-color: rgba(255, 255, 255, 0.05);
+
+            --organ-item-bg: rgba(255, 255, 255, 0.01);
+            --organ-item-border: rgba(255, 255, 255, 0.08);
+            --organ-icon-color: #94a3b8;
+
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --glow-color: rgba(10, 132, 255, 0.5);
+        }
+
+        /* --- LIGHT THEME OVERRIDES --- */
+        [data-theme="light"] {
+            /* Clean White/Pastel Background */
+            --bg-radial: linear-gradient(135deg, #f0f4f9 0%, #ffffff 100%);
+
+            /* Text Colors */
+            --text-main: #1e293b;
+            /* Dark Slate */
+            --text-muted: #64748b;
+            /* Cool Grey */
+            --text-inverse: #ffffff;
+
+            /* Pastel Accents - Brighter & Softer */
+            --color-blue: #3b82f6;
+            /* Bright Blue */
+            --color-yellow: #f59e0b;
+            --color-red: #ef4444;
+            --color-green: #10b981;
+            --color-purple: #8b5cf6;
+
+            /* Cards */
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(226, 232, 240, 0.8);
+            --card-active-bg: linear-gradient(135deg, #e0f2fe 0%, #ffffff 100%);
+
+            /* UI Elements */
+            --glass-bg: rgba(255, 255, 255, 0.5);
+            --glass-border: rgba(0, 0, 0, 0.06);
+            --glass-blur: blur(24px);
+
+            --sidebar-bg: rgba(255, 255, 255, 0.7);
+            --browser-bar-bg: rgba(255, 255, 255, 0.8);
+            --divider-color: rgba(0, 0, 0, 0.06);
+
+            --organ-item-bg: #ffffff;
+            --organ-item-border: rgba(0, 0, 0, 0.05);
+            --organ-icon-color: #64748b;
+
+            --shadow-soft: 0 10px 30px rgba(148, 163, 184, 0.15);
+            --glow-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* RESET & SCROLL */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 100, 100, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 100, 100, 0.3);
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            background: var(--bg-radial);
+            overflow: hidden;
+            user-select: none;
+            color: var(--text-main);
+        }
+
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* BROWSER BAR */
+        .browser-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 24px;
+            border-bottom: 1px solid var(--glass-border);
+            background: var(--browser-bar-bg);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+            margin-right: 12px;
+        }
+
+        .window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .branding-right {
+            margin-left: auto;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 1px;
+            font-size: 14px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .branding-right span {
+            color: var(--color-blue);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .sync-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--color-blue);
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.15);
+        }
+
+        .sync-pill .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-green);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: breathe 2.4s ease-in-out infinite;
+        }
+
+        .sync-btn {
+            padding: 8px 16px;
+            background: var(--color-blue);
+            color: white;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px var(--glow-color);
+        }
+
+        .sync-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .sync-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--glass-border);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--glass-bg);
+            color: var(--text-main);
+        }
+
+        /* BODY LAYOUT */
+        .dashboard-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 0;
+            gap: 18px;
+            border-right: 1px solid var(--glass-border);
+            z-index: 10;
+            background: var(--sidebar-bg);
+            backdrop-filter: var(--glass-blur);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-weight: 800;
+            color: var(--text-main);
+            font-size: 24px;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .logo span {
+            color: var(--color-blue);
+        }
+
+        .menu-item {
+            width: 90px;
+            height: 74px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid transparent;
+            text-decoration: none;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .menu-item:hover {
+            color: var(--text-main);
+            background: var(--glass-bg);
+            border-color: var(--glass-border);
+        }
+
+        .menu-item.active {
+            background: var(--glass-border);
+            color: var(--color-blue);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--glass-border);
+        }
+
+        .menu-item.danger {
+            color: #ef4444;
+        }
+
+        .menu-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: inherit;
+            letter-spacing: 0.2px;
+        }
+
+        .sidebar-divider {
+            width: 60%;
+            height: 1px;
+            background: var(--divider-color);
+            margin: 6px auto;
+            opacity: 0.6;
+        }
+
+        /* MAIN GRID */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 340px;
+            /* Grid Rows: Header, Vitals/3D, Divider, Nutrient/Labs, Divider, Experience/Profiles, Padding */
+            grid-template-rows: auto 500px auto auto auto 50px;
+            gap: 30px;
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 100px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .top-toggles {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-pill {
+            padding: 8px 24px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-pill.active {
+            background: rgba(10, 132, 255, 0.15);
+            color: var(--color-blue);
+            border-color: rgba(10, 132, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .active-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--color-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--color-blue);
+        }
+
+        .page-title h2 {
+            font-size: 18px;
+            color: var(--color-blue);
+            margin-bottom: 5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .page-title h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .page-title h1 span {
+            font-weight: 300;
+            opacity: 0.8;
+        }
+
+        .page-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .page-nav a {
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            background: var(--glass-bg);
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .page-nav a.active {
+            color: var(--color-blue);
+            border-color: rgba(10, 132, 255, 0.4);
+            box-shadow: 0 6px 14px rgba(10, 132, 255, 0.15);
+        }
+
+        /* 3D STAGE */
+        .heart-stage {
+            grid-column: 1;
+            grid-row: 2;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #model-3d-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #model-3d-container:active {
+            cursor: grabbing;
+        }
+
+        .rings {
+            position: absolute;
+            width: 550px;
+            height: 550px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: radial-gradient(circle, rgba(10, 132, 255, 0.03) 0%, transparent 60%);
+            z-index: 0;
+            animation: spin 40s linear infinite;
+        }
+
+        .rings::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            right: 50px;
+            bottom: 50px;
+            border-radius: 50%;
+            border: 1px dashed var(--glass-border);
+            animation: spinReverse 30s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spinReverse {
+            100% {
+                transform: rotate(-360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-blue), transparent);
+            box-shadow: 0 0 20px var(--color-blue);
+            animation: scan-down 4s ease-in-out infinite;
+            z-index: 2;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @keyframes scan-down {
+            0% {
+                top: 10%;
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                top: 90%;
+                opacity: 0;
+            }
+        }
+
+        .floating-stat {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 16px 20px;
+            width: 220px;
+            z-index: 10;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* STATS GRID */
+        .stats-area {
+            grid-column: 2;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            z-index: 5;
+        }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-blue);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .blue-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--color-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--color-blue);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .data-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(18px);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .data-card::after {
+            content: "";
+            position: absolute;
+            inset: -40% 10%;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            filter: blur(30px);
+        }
+
+        .data-card:hover {
+            border-color: var(--color-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .data-card:hover::after {
+            opacity: 1;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            z-index: 2;
+        }
+
+        .card-icon {
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+
+        .card-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .card-val {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            transition: 0.3s;
+        }
+
+        .card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin-top: 6px;
+            transition: 0.3s;
+        }
+
+        .card-status i {
+            font-size: 14px;
+        }
+
+        .scanning-text {
+            color: var(--color-blue);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            animation: pulseText 1s infinite;
+        }
+
+        @keyframes pulseText {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Card Colors */
+        .data-card.state-blue .card-icon {
+            color: var(--color-blue);
+        }
+
+        .data-card.active-blue {
+            background: var(--card-active-bg);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .data-card.state-normal {
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.12), var(--card-bg));
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);
+        }
+
+        .data-card.state-normal .card-icon {
+            color: var(--color-green);
+        }
+
+        .data-card.state-normal .card-status {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--color-green);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3);
+            animation: breathe 2.4s ease-in-out infinite;
+        }
+
+        .data-card.state-borderline {
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.12), var(--card-bg));
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.12);
+        }
+
+        .data-card.state-borderline .card-icon {
+            color: var(--color-yellow);
+        }
+
+        .data-card.state-borderline .card-status {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-yellow);
+            animation: shimmer 2s linear infinite;
+        }
+
+        .data-card.state-unstable {
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            background: linear-gradient(145deg, rgba(249, 115, 22, 0.12), var(--card-bg));
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.12);
+        }
+
+        .data-card.state-unstable .card-icon {
+            color: #f97316;
+        }
+
+        .data-card.state-unstable .card-status {
+            background: rgba(249, 115, 22, 0.18);
+            color: #f97316;
+            animation: pulseText 1.2s ease-in-out infinite;
+        }
+
+        .data-card.state-critical {
+            border: 1px solid rgba(239, 68, 68, 0.6);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.16), var(--card-bg));
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+        }
+
+        .data-card.state-critical .card-icon {
+            color: var(--color-red);
+        }
+
+        .data-card.state-critical .card-status {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--color-red);
+            animation: alertPulse 0.9s ease-in-out infinite;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -100px 0;
+            }
+
+            100% {
+                background-position: 100px 0;
+            }
+        }
+
+        @keyframes alertPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+            }
+
+            70% {
+                transform: scale(1.02);
+                box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .data-card.state-yellow {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, var(--card-bg) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .data-card.state-yellow .card-icon {
+            color: var(--color-yellow);
+        }
+
+        .data-card.state-red {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, var(--card-bg) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.1);
+        }
+
+        .data-card.state-red .card-icon {
+            color: var(--color-red);
+        }
+
+        /* RIGHT COLUMN (Organ Tray + AI) */
+        .right-column {
+            grid-column: 3;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .organ-tray {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .organ-item {
+            width: 60px;
+            height: 60px;
+            background: var(--organ-item-bg);
+            border: 1px solid var(--organ-item-border);
+            backdrop-filter: blur(15px);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-shrink: 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .organ-item:hover {
+            background: var(--glass-bg);
+            transform: translateY(-3px);
+            border-color: var(--color-blue);
+        }
+
+        .organ-item i,
+        .organ-item svg {
+            font-size: 24px;
+            color: var(--organ-icon-color);
+            transition: 0.3s;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.5;
+        }
+
+        .organ-item.selected {
+            background: linear-gradient(145deg, rgba(10, 132, 255, 0.15), rgba(10, 132, 255, 0.01));
+            border: 1px solid var(--color-blue);
+            box-shadow: 0 0 15px rgba(10, 132, 255, 0.3), inset 0 0 20px rgba(10, 132, 255, 0.1);
+        }
+
+        .organ-item.selected i,
+        .organ-item.selected svg {
+            color: var(--color-blue);
+            stroke: var(--color-blue);
+            filter: drop-shadow(0 0 5px rgba(10, 132, 255, 0.5));
+            transform: scale(1.1);
+        }
+
+        /* AI & DISEASE RISK */
+        .ai-hub {
+            flex: 1;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+        }
+
+        .ai-message-box {
+            background: rgba(10, 132, 255, 0.05);
+            border-left: 3px solid var(--color-blue);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .ai-message-box.alert {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--color-red);
+        }
+
+        .ai-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: block;
+            color: var(--color-blue);
+        }
+
+        .alert .ai-title {
+            color: var(--color-red);
+        }
+
+        .ai-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-main);
+            opacity: 0.9;
+        }
+
+        /* AI Buttons */
+        .ai-btn {
+            background: linear-gradient(135deg, var(--color-blue), #2563eb);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(10, 132, 255, 0.3);
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: auto;
+        }
+
+        .ai-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .ai-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .ai-btn.loading i {
+            animation: spin 1s infinite linear;
+        }
+
+        /* Diet & Lab AI Boxes */
+        .ai-result-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-main);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .ai-result-box h4 {
+            color: #10b981;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lab-explain-box {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 3px solid #8b5cf6;
+            font-size: 12px;
+            color: var(--text-main);
+            line-height: 1.4;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        /* FUTURE MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .future-card {
+            width: 500px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: 0.3s;
+        }
+
+        .modal-overlay.open .future-card {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 20px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .path-col {
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .path-current {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .path-optimized {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .path-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        /* DISEASE RISK INDICATOR */
+        .disease-risk-card {
+            margin-top: auto;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            border: 1px solid var(--divider-color);
+        }
+
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .risk-bar-container {
+            height: 6px;
+            background: rgba(128, 128, 128, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .risk-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+            width: 100%;
+            position: relative;
+        }
+
+        .risk-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: left 1s;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+        /* DIVIDER */
+        .divider-row {
+            grid-column: 1 / -1;
+            grid-row: 3;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 40px 0 20px 0;
+            opacity: 0.6;
+        }
+
+        .divider-row.secondary {
+            grid-row: 5;
+            margin: 20px 0;
+        }
+
+        .divider-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+            flex: 1;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        /* V2 GRID LAYOUT (Nutrients + Timeline) */
+        .v2-grid {
+            grid-column: 1 / -1;
+            grid-row: 4;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        /* MICRONUTRIENT SPECTRUM */
+        .nutrient-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .nutrient-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .nutrient-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        .nut-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .nut-info {
+            flex: 1;
+        }
+
+        .nut-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: block;
+        }
+
+        .nut-range {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .spectrum-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(128, 128, 128, 0.1);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spectrum-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s;
+        }
+
+        .fill-deficiency {
+            background: var(--color-red);
+        }
+
+        .fill-optimal {
+            background: var(--color-green);
+        }
+
+        .fill-excess {
+            background: var(--color-yellow);
+        }
+
+        .nut-val-text {
+            font-size: 11px;
+            font-weight: 700;
+            width: 40px;
+            text-align: right;
+        }
+
+        .color-def {
+            color: var(--color-red);
+        }
+
+        .color-opt {
+            color: var(--color-green);
+        }
+
+        .color-exc {
+            color: var(--color-yellow);
+        }
+
+        /* CLINICAL HUB (Timeline & Labs) */
+        .clinical-hub {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .tab-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--divider-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            padding-bottom: 5px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--color-blue);
+            box-shadow: 0 0 10px var(--color-blue);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.3s;
+            flex: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Appointment Cards */
+        .appt-card {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--glass-border);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .appt-card:hover {
+            background: rgba(128, 128, 128, 0.1);
+            border-color: var(--glass-border);
+        }
+
+        .date-box {
+            width: 50px;
+            height: 50px;
+            background: rgba(10, 132, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-blue);
+            flex-shrink: 0;
+        }
+
+        .date-day {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .date-mon {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .appt-details h4 {
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .appt-details p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .appt-tag {
+            margin-left: auto;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 100px;
+            background: rgba(128, 128, 128, 0.1);
+            color: var(--text-muted);
+        }
+
+        .tag-upcoming {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        /* Lab Reports List */
+        .lab-file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--divider-color);
+            color: var(--text-main);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            color: var(--color-purple);
+            font-size: 20px;
+        }
+
+        /* MANAGEMENT GRID (Experience, Profiles, Services) */
+        .management-grid {
+            grid-column: 1 / -1;
+            grid-row: 6;
+            display: grid;
+            grid-template-columns: 1fr 1fr 340px;
+            gap: 30px;
+        }
+
+        .module-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Services / Insurance Card */
+        .insurance-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            color: white;
+            /* Always white text for card */
+        }
+
+        .ins-logo {
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: -0.5px;
+            color: white;
+        }
+
+        .ins-chip {
+            width: 36px;
+            height: 26px;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            border-radius: 6px;
+        }
+
+        .ins-num {
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .ins-name {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        .pharmacy-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 15px;
+            padding: 12px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .refill-btn {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 6px 12px;
+            background: var(--text-main);
+            color: var(--card-bg);
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Experience Hub */
+        .goal-row {
+            background: var(--glass-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            margin-top: auto;
+            color: var(--text-main);
+        }
+
+        .goal-text {
+            font-size: 12px;
+            transition: 0.3s;
+        }
+
+        /* Lipid & Infection Profiles */
+        .lab-report-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--divider-color);
+            color: var(--text-main);
+        }
+
+        .lab-val {
+            font-weight: 700;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .lab-status {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+
+        .status-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--color-red);
+        }
+
+        .status-ok {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--color-green);
+        }
+
+        .plain-lang-box {
+            margin-top: 20px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(128, 128, 128, 0.05), transparent);
+            border-radius: 12px;
+            border: 1px dashed var(--divider-color);
+            color: var(--text-main);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .heart-stage {
+                height: 400px;
+                flex-shrink: 0;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .v2-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .management-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <div class="browser-bar">
+            <div class="window-controls">
+                <div class="window-dot" style="background: #ef4444;"></div>
+                <div class="window-dot" style="background: #f59e0b;"></div>
+                <div class="window-dot" style="background: #10b981;"></div>
+            </div>
+            <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+
+            <div class="sync-pill" id="sync-pill">
+                <div class="dot"></div>
+                <div>
+                    <div style="font-size:10px; opacity:0.7;">Network Sync</div>
+                    <div style="font-size:12px; font-weight:800;" id="sync-status">Live</div>
+                </div>
+            </div>
+
+            <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                <i class="ph-bold ph-sun"></i>
+            </button>
+
+            <!-- IMMEDIATE ASSISTANCE BUTTON -->
+            <button class="sync-btn" id="sos-btn"
+                style="background: var(--color-red); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); margin-left: 10px;"
+                onclick="triggerEmergency()">
+                <i class="ph-bold ph-warning-octagon"></i> HELP
+            </button>
+
+            <button class="sync-btn" id="sync-btn" onclick="simulateSync()">
+                <i class="ph-bold ph-arrows-clockwise"></i> Sync Labs
+            </button>
+        </div>
+
+        <div class="dashboard-body">
+            <div class="sidebar">
+                <div class="logo">H<span>+</span></div>
+                <a class="menu-item active" href="patient-dashboard.html"><i class="ph-fill ph-heartbeat"></i><span
+                        class="menu-label" data-i18n="dashboard">Dashboard</span></a>
+                <a class="menu-item" href="patient-health.html"><i class="ph-bold ph-pulse"></i><span class="menu-label"
+                        data-i18n="health">Health</span></a>
+                <a class="menu-item" href="patient-organs.html"><i class="ph-bold ph-scan"></i><span class="menu-label"
+                        data-i18n="organs">Organs</span></a>
+                <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span class="menu-label"
+                        data-i18n="labs">Labs</span></a>
+                <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span class="menu-label"
+                        data-i18n="pharmacy">Pharmacy</span></a>
+                <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+                        class="menu-label" data-i18n="hospitals">Hospitals</span></a>
+                <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+                        class="menu-label" data-i18n="insurance">Insurance</span></a>
+                <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span
+                        class="menu-label" data-i18n="log">Log</span></a>
+                <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span class="menu-label"
+                        data-i18n="devices">Devices</span></a>
+                <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span class="menu-label"
+                        data-i18n="family">Family</span></a>
+                <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span class="menu-label"
+                        data-i18n="profile">Profile</span></a>
+                <div class="sidebar-divider"></div>
+                <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span class="menu-label"
+                        data-i18n="settings">Settings</span></a>
+                <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+                        class="menu-label" data-i18n="exit">Exit</span></a>
+            </div>
+
+            <div class="main-content">
+
+                <div class="header-section">
+                    <div class="header-left">
+                        <div class="top-toggles">
+                            <button class="toggle-pill active">
+                                <div class="active-dot"></div>Live
+                            </button>
+                            <button class="toggle-pill">History</button>
+                            <!-- Language Switcher -->
+                            <select id="langSwitcher" class="toggle-pill"
+                                style="appearance:none; padding-right:15px; background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--glass-border);">
+                                <option value="en">🇺🇸 English</option>
+                                <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+                                <option value="hi">🇮🇳 हिंदी (Hindi)</option>
+                                <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+                                <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+                                <option value="ml">🇮🇳 മലയാളം (Malayalam)</option>
+                                <option value="bn">🇮🇳 বাঙালি (Bengali)</option>
+                            </select>
+                        </div>
+                        <div class="page-title" style="margin-top:10px;">
+                            <h2>Welcome back,</h2>
+                            <h1><span id="user-name-display">Dhivakaran</span></h1>
+                        </div>
+                        <div class="page-nav">
+                            <a class="active" href="patient-dashboard.html">Dashboard</a>
+                            <a href="patient-health.html">Health</a>
+                            <a href="patient-organs.html">Organs</a>
+                            <a href="patient-labs.html">Labs</a>
+                            <a href="patient-pharmacy.html">Pharmacy</a>
+                            <a href="patient-hospitals.html">Hospitals</a>
+                            <a href="patient-insurance.html">Insurance</a>
+                            <a href="patient-devices.html">Devices</a>
+                            <a href="patient-family.html">Family</a>
+                            <a href="patient-profile.html">Profile</a>
+                            <a href="patient-settings.html">Settings</a>
+                        </div>
+                    </div>
+                    <!-- Guardian AI Widget (Injected via JS) -->
+                    <div id="guardian-widget"></div>
+                </div>
+
+                <div class="heart-stage">
+                    <div class="rings"></div>
+                    <div class="scanner-line"></div>
+                    <div id="model-3d-container"></div>
+                    <div class="floating-stat">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                            <div class="live-badge">
+                                <div class="live-dot"></div> LIVE
+                            </div>
+                        </div>
+                        <div style="font-size:24px; font-weight:800; color:var(--text-main); margin-bottom:4px;"
+                            id="main-stat">--</div>
+                    </div>
+                </div>
+
+                <div class="stats-area">
+                    <div class="section-header">
+                        <div class="blue-dot"></div> <span id="section-title">Real-Time Vitals</span>
+                    </div>
+                    <div class="cards-grid">
+                        <div class="data-card state-blue" id="card-1">
+                            <div class="card-head">
+                                <div><span class="card-title" id="c1-title">--</span><span class="card-val"
+                                        id="c1-val">--</span></div>
+                                <i class="ph-fill ph-activity card-icon" id="c1-icon"></i>
+                            </div>
+                            <div class="card-status" id="c1-status"><i class="ph-bold ph-pulse"></i> Live</div>
+                        </div>
+                        <div class="data-card active-blue" id="card-2">
+                            <div class="card-head">
+                                <div><span class="card-title" id="c2-title">--</span><span class="card-val"
+                                        id="c2-val">--</span></div>
+                                <i class="ph ph-heartbeat card-icon" id="c2-icon"></i>
+                            </div>
+                            <div class="card-status" id="c2-status"><i class="ph-bold ph-heart"></i> Live</div>
+                            <svg width="100%" height="40" style="margin-top:auto;">
+                                <path d="M0,20 Q25,5 50,20 T100,20" fill="none" stroke="#3b82f6" stroke-width="3" />
+                            </svg>
+                        </div>
+                        <div class="data-card state-blue" id="card-3">
+                            <div class="card-head">
+                                <div><span class="card-title" id="c3-title">--</span><span class="card-val"
+                                        id="c3-val">--</span></div>
+                                <i class="ph-fill ph-drop card-icon" id="c3-icon"></i>
+                            </div>
+                            <div class="card-status" id="c3-status"><i class="ph-bold ph-activity"></i> Live</div>
+                        </div>
+                        <div class="data-card state-blue" id="card-4">
+                            <div class="card-head">
+                                <div><span class="card-title" id="c4-title">--</span><span class="card-val"
+                                        id="c4-val">--</span></div>
+                                <i class="ph-fill ph-thermometer card-icon" id="c4-icon"></i>
+                            </div>
+                            <div class="card-status" id="c4-status"><i class="ph-bold ph-wave-square"></i> Live</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="section-header">
+                        <div class="blue-dot"></div> Body Systems
+                    </div>
+                    <div class="organ-tray">
+                        <!-- Organs injected by JS -->
+                    </div>
+
+                    <div class="ai-hub">
+                        <div class="section-header">
+                            <i class="ph-fill ph-robot" style="margin-right:5px;"></i> AI Health Guard
+                            <div style="margin-left: auto; display: flex; gap: 8px;">
+                                <button class="ai-btn" id="speak-btn"
+                                    style="background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border); box-shadow:none;"
+                                    onclick="speakAnalysis()">
+                                    <i class="ph-bold ph-speaker-high"></i>
+                                </button>
+                                <button class="ai-btn" id="analyze-btn" onclick="analyzeCurrentOrgan()">
+                                    <i class="ph-bold ph-sparkle"></i> Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="ai-message-box" id="ai-box">
+                            <span class="ai-title" id="ai-title">ANALYSIS COMPLETE</span>
+                            <p class="ai-text" id="ai-msg">All vital signs within normal range. Vitamin D absorption is
+                                slightly optimized.</p>
+                        </div>
+
+                        <div class="disease-risk-card">
+                            <div class="risk-header">
+                                <span style="font-size:11px; font-weight:700; color:var(--text-main);">DISEASE RISK
+                                    INDICATOR</span>
+                                <span style="font-size:11px; font-weight:700; color:var(--text-muted);">LOW</span>
+                            </div>
+                            <div class="risk-bar-container">
+                                <div class="risk-bar">
+                                    <div class="risk-marker" id="risk-marker" style="left: 15%;"></div>
+                                </div>
+                            </div>
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                <div style="font-size:10px; color:var(--text-muted);">Based on genetics & current blood
+                                    work.</div>
+                                <button
+                                    style="background:none; border:none; color:var(--color-blue); font-size:10px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;"
+                                    onclick="simulateFuture()">
+                                    <i class="ph-bold ph-trend-up"></i> SIMULATE FUTURE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider-row">
+                    <div class="divider-line"></div>
+                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted);">DEEP
+                        CLINICAL DATA</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- Missing Sections Restored Below -->
+                <div class="v2-grid">
+                    <div class="nutrient-panel">
+                        <div class="section-header">
+                            <div class="blue-dot"></div> Micronutrient Spectrum
+                            <button class="ai-btn" id="diet-btn"
+                                style="background: var(--glass-bg); color: var(--text-main); box-shadow: none; border: 1px solid var(--glass-border); margin-left: auto;"
+                                onclick="generateDiet()">
+                                <i class="ph-bold ph-carrot"></i> Smart Diet
+                            </button>
+                        </div>
+                        <div class="nutrient-grid" id="nutrient-grid">
+                        </div>
+                        <div class="ai-result-box" id="diet-result">
+                            <h4><i class="ph-fill ph-sparkle"></i> AI Prescription Meal</h4>
+                            <div id="diet-content"></div>
+                        </div>
+                    </div>
+
+                    <div class="clinical-hub">
+                        <div class="tab-header">
+                            <button class="tab-btn active" onclick="switchTab('appointments')">Timeline</button>
+                            <button class="tab-btn" onclick="switchTab('labs')">Lab Reports</button>
+                        </div>
+
+                        <div id="tab-appointments" class="tab-content active">
+                            <div class="appt-card">
+                                <div class="date-box">
+                                    <span class="date-day">24</span><span class="date-mon">MAR</span>
+                                </div>
+                                <div class="appt-details">
+                                    <h4>Dr. Sarah Lee (Neurologist)</h4>
+                                    <p>Follow-up: Migraine Pattern</p>
+                                </div>
+                                <div class="appt-tag tag-upcoming">UPCOMING</div>
+                            </div>
+                            <div class="appt-card" style="opacity:0.6;">
+                                <div class="date-box" style="background:rgba(128,128,128,0.2); color:var(--text-main);">
+                                    <span class="date-day">10</span><span class="date-mon">FEB</span>
+                                </div>
+                                <div class="appt-details">
+                                    <h4>Genetics Lab</h4>
+                                    <p>Blood Draw: Full Panel</p>
+                                </div>
+                                <div class="appt-tag">COMPLETED</div>
+                            </div>
+                        </div>
+
+                        <div id="tab-labs" class="tab-content">
+                            <div class="lab-file">
+                                <div class="file-info">
+                                    <i class="ph-fill ph-file-pdf file-icon"></i>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:600;">Metabolic Panel</div>
+                                        <div style="font-size:10px; color:var(--text-muted);">Feb 12, 2024</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <i class="ph-bold ph-sparkle" style="cursor:pointer; color: #8b5cf6;"
+                                        onclick="explainLab(this, 'Metabolic Panel')"></i>
+                                    <i class="ph-bold ph-download-simple" style="cursor:pointer;"></i>
+                                </div>
+                            </div>
+                            <div class="lab-file">
+                                <div class="file-info">
+                                    <i class="ph-fill ph-file-pdf file-icon" style="color:var(--color-blue);"></i>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:600;">Lipid Profile</div>
+                                        <div style="font-size:10px; color:var(--text-muted);">Jan 05, 2024</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <i class="ph-bold ph-sparkle" style="cursor:pointer; color: #8b5cf6;"
+                                        onclick="explainLab(this, 'Lipid Profile')"></i>
+                                    <i class="ph-bold ph-download-simple" style="cursor:pointer;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider-row secondary">
+                    <div class="divider-line"></div>
+                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted);">
+                        SERVICES & LOGISTICS</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="management-grid">
+
+                    <!-- TIMELINE HUB (Replaces Static Experience Hub) -->
+                    <div class="module-card">
+                        <div class="section-header" style="margin-bottom:15px;">
+                            <div
+                                style="background:rgba(10,132,255,0.1); padding:4px; border-radius:6px; margin-right:8px; color:var(--color-blue);">
+                                <i class="ph-fill ph-calendar-check"></i>
+                            </div> Timeline Hub
+                        </div>
+
+                        <!-- Dynamic Container -->
+                        <div id="timeline-feed">
+                            <!-- Fallback if empty -->
+                            <div
+                                style="background:rgba(10,132,255,0.1); border-left:3px solid #0A84FF; padding:15px; border-radius:8px; margin-bottom:15px; color:var(--text-main);">
+                                <div style="font-size:13px; font-weight:700; margin-bottom:5px;">Morning Dhivakaran,
+                                </div>
+                                <div style="font-size:12px; opacity:0.8; line-height:1.4;">No upcoming appointments.
+                                    Check the <a href="patient-hospitals.html" style="color:var(--color-blue);">Hospital
+                                        Network</a> to book a checkup.</div>
+                            </div>
+                        </div>
+
+                        <div class="goal-row">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <i class="ph-fill ph-target" style="color:#f59e0b;"></i>
+                                <div class="goal-text" id="goal-text"><strong>Goal:</strong> Drink 500ml water.</div>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:15px; align-items: center;">
+                                <button onclick="ServiceSync.reset()"
+                                    style="padding:6px 12px; font-size:10px; opacity:0.3; background:transparent; border:1px solid gray; border-radius:100px; color:white; cursor:pointer;">Reset
+                                    DB</button>
+                                <button class="ai-btn" id="tip-btn"
+                                    style="margin-left:auto; background: rgba(128,128,128,0.2); color:var(--text-main); box-shadow:none;"
+                                    onclick="generateDailyTip()">
+                                    <i class="ph-bold ph-magic-wand"></i> New Goal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="section-header">
+                            <div
+                                style="background:rgba(245,158,11,0.15); padding:4px; border-radius:6px; margin-right:8px; color:#f59e0b;">
+                                <i class="ph-fill ph-microscope"></i>
+                            </div> Lipid Profile
+                            <span
+                                style="margin-left:auto; font-size:10px; opacity:0.5; color:var(--text-muted);">Updated
+                                2h ago</span>
+                        </div>
+                        <div class="lab-report-row">
+                            <div>
+                                <div style="font-size:13px; font-weight:600;">Total Cholesterol</div>
+                                <div style="font-size:11px; opacity:0.5; color:var(--text-muted);">Lipid Profile</div>
+                            </div>
+                            <div><span class="lab-val">210</span> <span class="lab-status status-high">HIGH</span></div>
+                        </div>
+
+                        <div class="plain-lang-box">
+                            <span
+                                style="font-size:10px; font-weight:800; color:#f59e0b; letter-spacing:1px; margin-bottom:4px; display:block;">PLAIN
+                                ENGLISH:</span>
+                            <div style="font-size:12px; line-height:1.4; opacity:0.8;">Your cholesterol is slightly
+                                elevated. Recommendation: Reduce red meat intake.</div>
+                        </div>
+
+                        <div style="height:1px; background:var(--divider-color); margin:20px 0;"></div>
+
+                        <div class="section-header">
+                            <div
+                                style="background:rgba(139, 92, 246, 0.15); padding:4px; border-radius:6px; margin-right:8px; color:#8b5cf6;">
+                                <i class="ph-fill ph-virus"></i>
+                            </div> Infection Profile
+                        </div>
+                        <div class="lab-report-row" style="border-bottom:none;">
+                            <div>
+                                <div style="font-size:13px; font-weight:600;">CRP (Inflammation)</div>
+                            </div>
+                            <div><span class="lab-val">0.3</span> <span class="lab-status status-ok">LOW</span></div>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="section-header">
+                            <div
+                                style="background:rgba(239,68,68,0.15); padding:4px; border-radius:6px; margin-right:8px; color:#ef4444;">
+                                <i class="ph-fill ph-wallet"></i>
+                            </div> Services
+                        </div>
+                        <div class="insurance-card">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <div class="ins-logo">HealthFlo<br>Shield+</div>
+                                <div class="ins-chip"></div>
+                            </div>
+                            <div>
+                                <div class="ins-num">•••• •••• 4291 9022</div>
+                                <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                                    <span class="ins-name">DHIVAKARAN</span>
+                                    <span class="ins-name">EXP 12/26</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pharmacy-item">
+                            <div
+                                style="width:32px; height:32px; background:rgba(16,185,129,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#10b981;">
+                                <i class="ph-fill ph-pill"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:12px; font-weight:700; color:var(--text-main);">Atorvastatin</div>
+                                <div style="font-size:10px; opacity:0.6; color:var(--text-muted);">10mg • Daily</div>
+                            </div>
+                            <button class="refill-btn">Refill</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Future Simulation Modal -->
+    <div class="modal-overlay" id="future-modal">
+        <div class="future-card">
+            <i class="ph-bold ph-x close-modal" onclick="closeFutureModal()"></i>
+            <div class="section-header"><i class="ph-fill ph-crystal-ball"
+                    style="color:var(--color-purple); margin-right:8px;"></i> 5-Year Health Projection</div>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Gemini AI has analyzed your current
+                biomarkers to project two potential health outcomes for your <span id="modal-organ-name"
+                    style="color:var(--text-main); font-weight:700;">--</span> system.</p>
+
+            <div id="simulation-content">
+                <!-- Injected by AI -->
+                <div style="padding:40px; text-align:center; color:var(--text-muted);">
+                    <i class="ph-bold ph-spinner"
+                        style="animation:spin 1s infinite linear; font-size:24px;"></i><br><br>Running Simulation...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const MODEL_BASE_PATH = '3d_models/';
+        const MODEL_FALLBACK = 'heart.glb';
+        const ORGAN_MODEL_FILES = {
+            general: 'body.glb',
+            heart: 'heart.glb',
+            brain: 'brain.glb',
+            lungs: 'lungs.glb',
+            liver: 'liver.glb',
+            kidneys: 'kidneys.glb',
+            eyes: 'eyes.glb'
+        };
+        const apiKey = ""; // Gemini API Key
+        const SYNC_KEY = 'hf-last-sync';
+
+        // --- CUSTOM SVG ICONS FOR ORGANS ---
+        const ORGAN_SVGS = {
+            general: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`,
+            liver: `<svg viewBox="0 0 24 24"><path d="M20.5 13.5c-.5-3.5-3.5-6.5-8.5-6.5s-8 3-8 6.5c0 3.5 3 6.5 6 6.5 1.5 0 3-.5 4.5-1.5 3.5-2.5 5.5-3.5 6-5z" /><path d="M8 8.5v3" /></svg>`,
+            lungs: `<svg viewBox="0 0 24 24"><path d="M12 2v20M6 5c-2.2 0-4 2.2-4 5.5S4 19 6.5 19 11 17 11 12 8.2 5 6 5zM18 5c2.2 0 4 2.2 4 5.5S20 19 17.5 19 13 17 13 12 15.8 5 18 5z" /></svg>`,
+            kidneys: `<svg viewBox="0 0 24 24"><path d="M7.5 6c-2.5 0-4.5 2-4.5 5.5s3 7.5 6 7.5c2 0 3-1.5 3-4-1 1-3 0-3-2s2-3.5 4.5-3.5c-1-2.5-3.5-3.5-6-3.5z" /><path d="M16.5 6c2.5 0 4.5 2 4.5 5.5s-3 7.5-6 7.5c-2 0-3-1.5-3-4 1 1 3 0 3-2s-2-3.5-4.5-3.5c1-2.5 3.5-3.5 6-3.5z" /></svg>`,
+            stomach: `<svg viewBox="0 0 24 24"><path d="M7 5c2-2 7-2 9 0 2 2 2 6 0 9-1 1.5-3 5-3 5-2 1-5 1-7-1s-3-5-2-8c1-3 3-5 3-5z" /><path d="M10 8h4" /></svg>`,
+            intestines: `<svg viewBox="0 0 24 24"><path d="M6 5c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v1c0 1.1-.9 2-2 2H8c-1.1 0-2 .9-2 2v1c0 1.1.9 2 2 2h8c1.1 0 2 .9 2 2v1c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V5z" /></svg>`,
+            pancreas: `<svg viewBox="0 0 24 24"><path d="M21 9c-1-2-4-2-6 0l-9 9c-2 2-2 4 0 4s2 2 4 0l11-11c.5-.5 1-1.5 0-2z" /><path d="M12 12l2 2" /></svg>`,
+            gallbladder: `<svg viewBox="0 0 24 24"><path d="M12 3c-1.5 0-3 1.5-3 3v2c0 3.5 2 8 3 8s3-4.5 3-8V6c0-1.5-1.5-3-3-3z" /></svg>`,
+            urinary: `<svg viewBox="0 0 24 24"><path d="M12 4v4M8 10c0 4 1.5 8 4 8s4-4 4-8H8zM12 18v3" /></svg>`
+        };
+
+        // --- EXTENDED DATA: ALL ORGANS + NUTRIENTS ---
+        const ORGAN_DATA = {
+            general: {
+                title: "General Body", simValue: 90, icon: "svg-general", lastReport: "2025-11-20",
+                stats: [
+                    { id: "c1", title: "Body Temp", base: 98.6, unit: "°F", icon: "ph-thermometer", type: "temp" },
+                    { id: "c2", title: "Pulse Rate", base: 72, unit: "bpm", icon: "ph-heartbeat", type: "bpm" },
+                    { id: "c3", title: "Weight", base: 75, unit: "kg", icon: "ph-scales", type: "mass" },
+                    { id: "c4", title: "Blood Sugar", base: 95, unit: "mg/dL", icon: "ph-drop", type: "gluc" }
+                ],
+                ai: { msg: "Overall general health is closely monitored. Weight is stable.", risk: 10 },
+                nutrients: [
+                    { name: "Hydration", val: "Optimal", unit: "", status: "optimal", cat: "General" },
+                    { name: "Protein", val: "Adj", unit: "", status: "optimal", cat: "Macro" }
+                ]
+            },
+            heart: {
+                title: "Cardiovascular", simValue: 80, icon: "ph-heart", lastReport: "2025-10-15",
+                stats: [
+                    { id: "c1", title: "Blood Pressure", base: 116, unit: "/70", icon: "ph-drop", type: "bp" },
+                    { id: "c2", title: "Heart Rate", base: 80, unit: "bpm", icon: "ph-heartbeat", type: "bpm" },
+                    { id: "c3", title: "O2 Saturation", base: 98, unit: "%", icon: "ph-activity", type: "norm" },
+                    { id: "c4", title: "Cardiac Output", base: 5.2, unit: "L/min", icon: "ph-waves", type: "norm" }
+                ],
+                ai: { msg: "Sinus rhythm normal. Slight elevation in BP during afternoon.", risk: 15 },
+                nutrients: [
+                    { name: "Magnesium", val: "2.1", unit: "mg/dL", status: "optimal", cat: "Mineral" },
+                    { name: "Potassium", val: "3.6", unit: "mmol/L", status: "deficient", cat: "Mineral" },
+                    { name: "CoQ10", val: "0.8", unit: "ug/mL", status: "optimal", cat: "Enzyme" },
+                    { name: "Omega-3", val: "5.2", unit: "%", status: "optimal", cat: "Fatty Acid" }
+                ]
+            },
+            brain: {
+                title: "Nervous System", simValue: 14, icon: "ph-brain", lastReport: "2025-09-10",
+                stats: [
+                    { id: "c1", title: "Brain Waves", base: 14, unit: "Hz", icon: "ph-wave-sine", type: "hz" },
+                    { id: "c2", title: "Stress Load", base: 65, unit: "%", icon: "ph-lightning", type: "perc" },
+                    { id: "c3", title: "Sleep Qual", base: 82, unit: "%", icon: "ph-moon", type: "perc" },
+                    { id: "c4", title: "Reaction", base: 200, unit: "ms", icon: "ph-timer", type: "norm" }
+                ],
+                ai: { msg: "High Beta wave activity indicating stress. Cortisol likely elevated.", risk: 40, alert: true },
+                nutrients: [
+                    { name: "Vitamin B12", val: "450", unit: "pg/mL", status: "optimal", cat: "Vitamin" },
+                    { name: "Vitamin D3", val: "18", unit: "ng/mL", status: "deficient", cat: "Vitamin" },
+                    { name: "Iron (Ferritin)", val: "40", unit: "ng/mL", status: "optimal", cat: "Mineral" },
+                    { name: "Zinc", val: "85", unit: "mcg/dL", status: "optimal", cat: "Mineral" }
+                ]
+            },
+            lungs: {
+                title: "Respiratory", simValue: 16, icon: "svg-lungs", lastReport: "2025-08-25",
+                stats: [
+                    { id: "c1", title: "Resp Rate", base: 16, unit: "rpm", icon: "ph-wind", type: "rpm" },
+                    { id: "c2", title: "SpO2", base: 98, unit: "%", icon: "ph-drop", type: "perc" },
+                    { id: "c3", title: "VO2 Max", base: 42, unit: "ml", icon: "ph-sneaker", type: "norm" },
+                    { id: "c4", title: "pH Balance", base: 7.4, unit: "pH", icon: "ph-eyedropper", type: "norm" }
+                ],
+                ai: { msg: "Oxygen exchange excellent. No signs of inflammation.", risk: 2 },
+                nutrients: [
+                    { name: "Vitamin C", val: "1.2", unit: "mg/dL", status: "optimal", cat: "Vitamin" },
+                    { name: "Magnesium", val: "2.1", unit: "mg/dL", status: "optimal", cat: "Mineral" },
+                    { name: "Vitamin A", val: "40", unit: "mcg/dL", status: "optimal", cat: "Vitamin" },
+                    { name: "Omega-3", val: "4.8", unit: "%", status: "deficient", cat: "Fatty Acid" }
+                ]
+            },
+            liver: {
+                title: "Hepatic System", simValue: 5, icon: "svg-liver", lastReport: "2025-07-30",
+                stats: [
+                    { id: "c1", title: "ALT (SGPT)", base: 29, unit: "U/L", icon: "ph-flask", type: "norm" },
+                    { id: "c2", title: "Detox Efficiency", base: 95, unit: "%", icon: "ph-shield-check", type: "perc" },
+                    { id: "c3", title: "Bilirubin", base: 0.8, unit: "mg", icon: "ph-test-tube", type: "norm" },
+                    { id: "c4", title: "Glucose", base: 98, unit: "mg/dL", icon: "ph-cube", type: "norm" }
+                ],
+                ai: { msg: "Liver enzymes stable. Glucose regulation is optimal.", risk: 5 },
+                nutrients: [
+                    { name: "Vitamin A", val: "45", unit: "mcg/dL", status: "excess", cat: "Vitamin" },
+                    { name: "Selenium", val: "120", unit: "ng/mL", status: "optimal", cat: "Mineral" },
+                    { name: "Glutathione", val: "Norm", unit: "", status: "optimal", cat: "Antioxidant" },
+                    { name: "Vitamin E", val: "10", unit: "mg/L", status: "optimal", cat: "Vitamin" }
+                ]
+            },
+            kidneys: {
+                title: "Renal System", simValue: 90, icon: "svg-kidneys", lastReport: "2025-10-05",
+                stats: [
+                    { id: "c1", title: "GFR", base: 95, unit: "mL", icon: "ph-gauge", type: "norm" },
+                    { id: "c2", title: "Creatinine", base: 0.9, unit: "mg/dL", icon: "ph-flask", type: "norm" },
+                    { id: "c3", title: "BUN", base: 14, unit: "mg/dL", icon: "ph-chart-bar", type: "norm" },
+                    { id: "c4", title: "Hydration", base: 92, unit: "%", icon: "ph-drop-half", type: "perc" }
+                ],
+                ai: { msg: "Renal function optimal. GFR indicates healthy filtration.", risk: 8 },
+                nutrients: [
+                    { name: "Potassium", val: "4.1", unit: "mmol/L", status: "optimal", cat: "Electrolyte" },
+                    { name: "Sodium", val: "139", unit: "mmol/L", status: "optimal", cat: "Electrolyte" },
+                    { name: "Calcium", val: "9.2", unit: "mg/dL", status: "optimal", cat: "Mineral" },
+                    { name: "Phosphorus", val: "3.5", unit: "mg/dL", status: "optimal", cat: "Mineral" }
+                ]
+            },
+            stomach: {
+                title: "Gastric System", simValue: 60, icon: "svg-stomach", lastReport: "2025-02-15",
+                stats: [
+                    { id: "c1", title: "Gastric pH", base: 2.1, unit: "pH", icon: "ph-eyedropper", type: "norm" },
+                    { id: "c2", title: "Motility", base: 3, unit: "cpm", icon: "ph-wave-sine", type: "norm" },
+                    { id: "c3", title: "Gastrin", base: 45, unit: "pg/mL", icon: "ph-flask", type: "norm" },
+                    { id: "c4", title: "Digestion", base: 88, unit: "%", icon: "ph-gear", type: "perc" }
+                ],
+                ai: { msg: "Acid production normal. No signs of reflux detected.", risk: 10 },
+                nutrients: [
+                    { name: "B12", val: "500", unit: "pg/mL", status: "optimal", cat: "Vitamin" },
+                    { name: "Zinc", val: "88", unit: "mcg/dL", status: "optimal", cat: "Mineral" },
+                    { name: "Betaine", val: "Norm", unit: "", status: "optimal", cat: "Compound" },
+                    { name: "Pepsinogen", val: "140", unit: "ng/mL", status: "optimal", cat: "Enzyme" }
+                ]
+            },
+            intestines: {
+                title: "Digestive Tract", simValue: 55, icon: "svg-intestines", lastReport: "2025-01-20",
+                stats: [
+                    { id: "c1", title: "Absorption", base: 92, unit: "%", icon: "ph-arrows-in", type: "perc" },
+                    { id: "c2", title: "Microbiome", base: 8.5, unit: "/10", icon: "ph-bug", type: "score" },
+                    { id: "c3", title: "Inflammation", base: 1.2, unit: "mg", icon: "ph-fire", type: "norm" },
+                    { id: "c4", title: "Transit", base: 24, unit: "hrs", icon: "ph-clock", type: "norm" }
+                ],
+                ai: { msg: "Gut microbiome diversity is high. Absorption efficiency optimal.", risk: 12 },
+                nutrients: [
+                    { name: "Probiotics", val: "High", unit: "", status: "optimal", cat: "Bacteria" },
+                    { name: "Fiber", val: "25", unit: "g", status: "deficient", cat: "Dietary" },
+                    { name: "Glutamine", val: "Norm", unit: "", status: "optimal", cat: "Amino Acid" },
+                    { name: "Butyrate", val: "High", unit: "", status: "optimal", cat: "Fatty Acid" }
+                ]
+            },
+            pancreas: {
+                title: "Endocrine/Exocrine", simValue: 40, icon: "svg-pancreas", lastReport: "2025-03-10",
+                stats: [
+                    { id: "c1", title: "Insulin", base: 6.5, unit: "uIU", icon: "ph-syringe", type: "norm" },
+                    { id: "c2", title: "Lipase", base: 35, unit: "U/L", icon: "ph-drop", type: "norm" },
+                    { id: "c3", title: "Amylase", base: 55, unit: "U/L", icon: "ph-cookie", type: "norm" },
+                    { id: "c4", title: "HbA1c", base: 5.4, unit: "%", icon: "ph-chart-line", type: "perc" }
+                ],
+                ai: { msg: "Beta cell function within normal range. Insulin sensitivity good.", risk: 5 },
+                nutrients: [
+                    { name: "Chromium", val: "0.5", unit: "ng/mL", status: "optimal", cat: "Mineral" },
+                    { name: "Magnesium", val: "2.1", unit: "mg/dL", status: "optimal", cat: "Mineral" },
+                    { name: "Vanadium", val: "Norm", unit: "", status: "optimal", cat: "Trace" },
+                    { name: "Inositol", val: "Norm", unit: "", status: "optimal", cat: "Carb" }
+                ]
+            },
+            gallbladder: {
+                title: "Biliary System", simValue: 18, icon: "svg-gallbladder", lastReport: "2025-02-28",
+                stats: [
+                    { id: "c1", title: "Bile Flow", base: 88, unit: "%", icon: "ph-arrows-left-right", type: "perc" },
+                    { id: "c2", title: "Cholesterol", base: 165, unit: "mg/dL", icon: "ph-drop-half-bottom", type: "norm" },
+                    { id: "c3", title: "Gallstone Risk", base: 8, unit: "%", icon: "ph-diamond", type: "perc" },
+                    { id: "c4", title: "LFT Support", base: 92, unit: "%", icon: "ph-heartbeat", type: "perc" }
+                ],
+                ai: { msg: "No biliary obstruction detected. Keep fiber intake consistent to prevent sludge.", risk: 9 },
+                nutrients: [
+                    { name: "Choline", val: "Adequate", unit: "", status: "optimal", cat: "Nutrient" },
+                    { name: "Fiber", val: "30", unit: "g", status: "optimal", cat: "Dietary" },
+                    { name: "Omega-3", val: "4.2", unit: "%", status: "deficient", cat: "Fatty Acid" },
+                    { name: "Vitamin K", val: "0.8", unit: "ug/mL", status: "optimal", cat: "Vitamin" }
+                ]
+            },
+            urinary: {
+                title: "Urinary Tract", simValue: 12, icon: "svg-urinary", lastReport: "2025-01-05",
+                stats: [
+                    { id: "c1", title: "Filtration", base: 97, unit: "%", icon: "ph-funnel", type: "perc" },
+                    { id: "c2", title: "Hydration", base: 94, unit: "%", icon: "ph-drop", type: "perc" },
+                    { id: "c3", title: "pH", base: 6.2, unit: "pH", icon: "ph-eyedropper", type: "norm" },
+                    { id: "c4", title: "UTI Risk", base: 3, unit: "%", icon: "ph-shield-check", type: "perc" }
+                ],
+                ai: { msg: "Clear urinalysis. Encourage steady water intake and balanced electrolytes.", risk: 6 },
+                nutrients: [
+                    { name: "Cranberry", val: "Support", unit: "", status: "optimal", cat: "Phytonutrient" },
+                    { name: "Vitamin C", val: "1.0", unit: "mg/dL", status: "optimal", cat: "Vitamin" },
+                    { name: "Sodium", val: "138", unit: "mmol/L", status: "optimal", cat: "Electrolyte" },
+                    { name: "Potassium", val: "4.4", unit: "mmol/L", status: "optimal", cat: "Electrolyte" }
+                ]
+            },
+            eyes: {
+                title: "Ophthalmic", simValue: 20, icon: "ph-eye", lastReport: "2025-03-01",
+                stats: [
+                    { id: "c1", title: "IOP", base: 14, unit: "mmHg", icon: "ph-gauge", type: "norm" },
+                    { id: "c2", title: "Vision", base: 20, unit: "/20", icon: "ph-binoculars", type: "norm" },
+                    { id: "c3", title: "Hydration", base: 90, unit: "%", icon: "ph-drop-half", type: "perc" },
+                    { id: "c4", title: "Strain", base: 22, unit: "%", icon: "ph-device-mobile", type: "perc" }
+                ],
+                ai: { msg: "Retinal scan clear. Maintain screen breaks to keep strain minimal.", risk: 7 },
+                nutrients: [
+                    { name: "Vitamin A", val: "Optimal", unit: "", status: "optimal", cat: "Vitamin" },
+                    { name: "Lutein", val: "Adequate", unit: "", status: "optimal", cat: "Carotenoid" },
+                    { name: "Omega-3", val: "4.5", unit: "%", status: "deficient", cat: "Fatty Acid" },
+                    { name: "Zinc", val: "85", unit: "mcg/dL", status: "optimal", cat: "Mineral" }
+                ]
+            }
+        };
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('theme-btn');
+            const icon = btn.querySelector('i');
+
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.className = 'ph-bold ph-moon';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.className = 'ph-bold ph-sun';
+            }
+            // Trigger 3D update if needed (e.g. background change) - handled by alpha:true
+        }
+
+        // --- THREE.JS SETUP ---
+        let scene, camera, renderer, group, particles, spotLight;
+        let isDragging = false;
+        let mouseX = 0, mouseY = 0;
+
+        const initThree = () => {
+            const container = document.getElementById('model-3d-container');
+            if (!container) return;
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 2, 14);
+
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            container.appendChild(renderer.domElement);
+
+            // Particles
+            const particlesGeo = new THREE.BufferGeometry();
+            const pArray = new Float32Array(600); // 200 particles * 3 xyz
+            for (let i = 0; i < 600; i++) pArray[i] = (Math.random() - 0.5) * 20;
+            particlesGeo.setAttribute("position", new THREE.BufferAttribute(pArray, 3));
+            particles = new THREE.Points(particlesGeo, new THREE.PointsMaterial({ size: 0.05, color: 0x3b82f6, transparent: true, opacity: 0.6 }));
+            scene.add(particles);
+
+            // Lighting
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+            spotLight = new THREE.SpotLight(0xffffff, 2);
+            spotLight.position.set(15, 20, 20);
+            scene.add(spotLight);
+            scene.add(new THREE.PointLight(0xff0055, 3, 50)); // Rim
+            scene.add(new THREE.PointLight(0x3b82f6, 1, 50)); // Fill
+
+            // Initial Load
+            loadOrganModel('general');
+
+            // Animation Loop
+            const clock = new THREE.Clock();
+            const animate = () => {
+                requestAnimationFrame(animate);
+                const t = clock.getElapsedTime();
+
+                if (group && !isDragging) {
+                    const baseScale = activeOrgan === 'heart' ? 1.08 : 1.02;
+                    const pulseStrength = activeOrgan === 'heart' ? 0.08 : 0.02;
+                    const pulse = baseScale + Math.sin(t * (activeOrgan === 'heart' ? 2.8 : 1.4)) * pulseStrength;
+                    group.scale.set(pulse, pulse, pulse);
+                    group.rotation.y = Math.sin(t * 0.5) * 0.15 + (mouseX * 0.5);
+                    group.rotation.x = Math.sin(t * 0.2) * 0.05 + (mouseY * 0.05);
+                }
+
+                if (particles) particles.rotation.y += 0.0005;
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            // Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            // Interactive Mouse
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouseY = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+            });
+        };
+
+        const loadOrganModel = (type) => {
+            if (group) scene.remove(group);
+            group = new THREE.Group();
+            scene.add(group);
+
+            const loader = new THREE.GLTFLoader();
+            const fileName = ORGAN_MODEL_FILES[type] || MODEL_FALLBACK;
+            const modelPath = `${MODEL_BASE_PATH}${fileName}`;
+
+            loader.load(modelPath, (gltf) => {
+                const model = gltf.scene;
+
+                // Normalize scale & center
+                const box = new THREE.Box3().setFromObject(model);
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z) || 1;
+                const targetSize = 8;
+                const scale = targetSize / maxDim;
+
+                model.scale.setScalar(scale);
+                box.setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                model.position.sub(center);
+                model.rotation.y = Math.PI; // Face camera consistently
+
+                group.position.set(0, -0.5, 0);
+                group.add(model);
+            }, undefined, (err) => {
+                console.warn("Model fallback", err);
+                const geo = new THREE.IcosahedronGeometry(2.5, 1);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x0A84FF, wireframe: true });
+                group.add(new THREE.Mesh(geo, mat));
+            });
+        };
+
+        // --- DASHBOARD LOGIC ---
+        let activeOrgan = 'general';
+
+        const renderOrganTray = () => {
+            const tray = document.querySelector('.organ-tray');
+            if (!tray) return; // Guard
+            tray.innerHTML = '';
+            Object.keys(ORGAN_DATA).forEach(key => {
+                const data = ORGAN_DATA[key];
+                const btn = document.createElement('div');
+                btn.className = `organ-item ${key === 'general' ? 'selected' : ''}`;
+                btn.dataset.organ = key;
+                btn.title = data.title;
+
+                let iconHtml = data.icon.startsWith('svg-')
+                    ? ORGAN_SVGS[data.icon.split('-')[1]]
+                    : `<i class="ph ${data.icon}"></i>`;
+
+                btn.innerHTML = `${iconHtml}`;
+                tray.appendChild(btn);
+            });
+        };
+
+        const renderNutrients = (nutrients) => {
+            const grid = document.getElementById('nutrient-grid');
+            if (!grid) {
+                console.warn('Nutrient grid element not found');
+                return;
+            }
+            grid.innerHTML = '';
+
+            nutrients.forEach(n => {
+                // Determine color and width
+                let colorClass = 'color-opt';
+                let fillClass = 'fill-optimal';
+                let width = '70%';
+                let icon = 'ph-check';
+                let bg = 'rgba(16, 185, 129, 0.15)';
+                let fg = 'var(--color-green)';
+
+                if (n.status === 'deficient') {
+                    colorClass = 'color-def';
+                    fillClass = 'fill-deficiency';
+                    width = '30%';
+                    icon = 'ph-arrow-down';
+                    bg = 'rgba(239, 68, 68, 0.15)';
+                    fg = 'var(--color-red)';
+                } else if (n.status === 'excess') {
+                    colorClass = 'color-exc';
+                    fillClass = 'fill-excess';
+                    width = '100%';
+                    icon = 'ph-arrow-up';
+                    bg = 'rgba(245, 158, 11, 0.15)';
+                    fg = 'var(--color-yellow)';
+                }
+
+                grid.innerHTML += `
+                    <div class="nutrient-item">
+                        <div class="nut-icon" style="background:${bg}; color:${fg};"><i class="ph-bold ${icon}"></i></div>
+                        <div class="nut-info">
+                            <span class="nut-name">${n.name} <span class="nut-range">${n.cat}</span></span>
+                            <div class="spectrum-bar">
+                                <div class="spectrum-fill ${fillClass}" style="width: ${width}"></div>
+                            </div>
+                        </div>
+                        <div class="nut-val-text ${colorClass}">
+                            ${n.val}<span style="font-size:9px; opacity:0.7;">${n.unit}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        const evaluateVital = (stat) => {
+            const val = stat.base;
+            const title = stat.title.toLowerCase();
+            let level = 'normal';
+            let label = 'Normal';
+
+            if (stat.type === 'bp') {
+                if (val < 120) { level = 'normal'; label = 'Normal'; }
+                else if (val < 130) { level = 'borderline'; label = 'Borderline'; }
+                else if (val < 140) { level = 'unstable'; label = 'Unstable'; }
+                else { level = 'critical'; label = 'Critical'; }
+            } else if (stat.type === 'bpm') {
+                if (val >= 60 && val <= 100) { level = 'normal'; label = 'Normal'; }
+                else if ((val > 100 && val <= 110) || (val >= 50 && val < 60)) { level = 'borderline'; label = 'Elevated'; }
+                else if ((val > 110 && val <= 120) || (val >= 45 && val < 50)) { level = 'unstable'; label = 'Unstable'; }
+                else { level = 'critical'; label = 'Critical'; }
+            } else if (stat.type === 'perc') {
+                if (val >= 90) { level = 'normal'; label = 'Optimal'; }
+                else if (val >= 80) { level = 'borderline'; label = 'Borderline'; }
+                else if (val >= 65) { level = 'unstable'; label = 'Unstable'; }
+                else { level = 'critical'; label = 'Critical'; }
+            } else if (title.includes('o2') || title.includes('oxygen')) {
+                if (val >= 95) { level = 'normal'; label = 'Normal'; }
+                else if (val >= 92) { level = 'borderline'; label = 'Borderline'; }
+                else if (val >= 88) { level = 'unstable'; label = 'Unstable'; }
+                else { level = 'critical'; label = 'Critical'; }
+            } else if (stat.type === 'hz') {
+                if (val >= 12 && val <= 25) { level = 'normal'; label = 'Focused'; }
+                else if ((val > 25 && val <= 30) || (val >= 10 && val < 12)) { level = 'borderline'; label = 'Elevated'; }
+                else if (val > 30 || val < 8) { level = 'critical'; label = 'Critical'; }
+                else { level = 'unstable'; label = 'Unstable'; }
+            } else {
+                if (val >= 95) { level = 'normal'; label = 'Stable'; }
+                else if (val >= 85) { level = 'borderline'; label = 'Borderline'; }
+                else if (val >= 70) { level = 'unstable'; label = 'Unstable'; }
+                else { level = 'critical'; label = 'Critical'; }
+            }
+
+            return { level, label };
+        };
+
+        const updateSyncIndicator = (label = 'Live') => {
+            const statusEl = document.getElementById('sync-status');
+            const pill = document.getElementById('sync-pill');
+            if (statusEl) statusEl.innerText = label;
+            if (pill) {
+                const dot = pill.querySelector('.dot');
+                if (dot) {
+                    dot.style.background = label.toLowerCase().includes('pending') ? '#f59e0b' : 'var(--color-green)';
+                }
+                pill.title = `Last sync: ${label}`;
+            }
+        };
+
+        const persistSync = (payload = {}) => {
+            const stamp = new Date().toISOString();
+            const record = { ...payload, time: stamp };
+            localStorage.setItem(SYNC_KEY, JSON.stringify(record));
+            const friendly = new Date(stamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            updateSyncIndicator(`Live @ ${friendly}`);
+        };
+
+
+
+        const hydrateSync = () => {
+            const raw = localStorage.getItem(SYNC_KEY);
+            if (!raw) return;
+            try {
+                const parsed = JSON.parse(raw);
+                const friendly = parsed.time ? new Date(parsed.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Live';
+                updateSyncIndicator(`Live @ ${friendly}`);
+            } catch (e) {
+                console.warn('Sync hydrate failed', e);
+            }
+        };
+
+        const updateUI = (key) => {
+            activeOrgan = key;
+            const data = ORGAN_DATA[key];
+
+            // Update Title
+            document.getElementById('section-title').innerHTML = `<div class="blue-dot"></div> ${data.title} Vitals`;
+            document.getElementById('main-stat').innerHTML = "Scanning...";
+
+            // AI Section - reset to default data on organ switch
+            const aiBox = document.getElementById('ai-box');
+            const aiMsg = document.getElementById('ai-msg');
+            const aiTitle = document.getElementById('ai-title');
+
+            if (data.ai.alert) {
+                aiBox.className = 'ai-message-box alert';
+                aiTitle.innerText = "HEALTH ALERT DETECTED";
+            } else {
+                aiBox.className = 'ai-message-box';
+                aiTitle.innerText = "AI ANALYSIS COMPLETE";
+            }
+            aiMsg.innerText = data.ai.msg;
+
+            // Risk Bar
+            const marker = document.getElementById('risk-marker');
+            marker.style.left = data.ai.risk + "%";
+
+            // Update Cards (With Fake Scanning Delay)
+            data.stats.forEach((s, i) => {
+                const elTitle = document.getElementById(`c${i + 1}-title`);
+                const elVal = document.getElementById(`c${i + 1}-val`);
+                const elIcon = document.getElementById(`c${i + 1}-icon`);
+                const card = document.getElementById(`card-${i + 1}`);
+                const statusPill = document.getElementById(`c${i + 1}-status`);
+
+                if (elTitle) elTitle.innerText = s.title;
+                if (elIcon) elIcon.className = `ph-fill ${s.icon} card-icon`;
+                if (elVal) {
+                    elVal.innerHTML = '<span class="scanning-text">...</span>';
+                    setTimeout(() => {
+                        elVal.innerHTML = `${s.base} <small>${s.unit}</small>`;
+                        if (i === 1) {
+                            const mainStat = document.getElementById('main-stat');
+                            if (mainStat) mainStat.innerHTML = `${s.base} <span style="font-size:14px;">${s.unit}</span>`;
+                        }
+                        if (card) {
+                            const { level, label } = evaluateVital(s);
+                            card.classList.remove('state-normal', 'state-borderline', 'state-unstable', 'state-critical', 'state-blue', 'active-blue');
+                            card.classList.add(`state-${level}`);
+                            if (statusPill) {
+                                statusPill.innerHTML = `<i class="ph-bold ${level === 'critical' ? 'ph-warning' : level === 'unstable' ? 'ph-activity' : level === 'borderline' ? 'ph-wave-sine' : 'ph-check'}"></i> ${label}`;
+                            }
+                        }
+                    }, 500 + (i * 100));
+                }
+            });
+
+            // Update Nutrition Grid
+            renderNutrients(data.nutrients);
+
+            // Check Report Age
+            if (data.lastReport) {
+                const reportDate = new Date(data.lastReport);
+                const today = new Date('2025-12-16'); // Current date
+                const monthsDiff = (today.getFullYear() - reportDate.getFullYear()) * 12 + (today.getMonth() - reportDate.getMonth());
+
+                // Primary organs: heart, brain, lungs, liver, kidneys (3 months threshold)
+                const primaryOrgans = ['heart', 'brain', 'lungs', 'liver', 'kidneys'];
+                const isPrimary = primaryOrgans.includes(key);
+                const threshold = isPrimary ? 3 : 10;
+
+                if (monthsDiff > threshold) {
+                    const reportWarning = document.createElement('div');
+                    reportWarning.style.cssText = 'margin-top:15px; padding:12px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:8px; font-size:12px; color:var(--color-yellow);';
+                    reportWarning.innerHTML = `<i class="ph-bold ph-warning"></i> <strong>Report Outdated:</strong> Last ${data.title} report was ${monthsDiff} months ago. <a href="patient-labs.html" style="color:var(--color-blue); text-decoration:underline; cursor:pointer;">Upload latest report</a> for updated results.`;
+
+                    const aiSection = document.querySelector('.ai-hub');
+                    if (aiSection) {
+                        // Remove old warnings
+                        const oldWarning = aiSection.querySelector('.report-warning');
+                        if (oldWarning) oldWarning.remove();
+
+                        reportWarning.className = 'report-warning';
+                        aiSection.appendChild(reportWarning);
+                    }
+                } else {
+                    // Remove warning if report is fresh
+                    const oldWarning = document.querySelector('.report-warning');
+                    if (oldWarning) oldWarning.remove();
+                }
+            }
+
+            // Re-apply translation after dynamic update
+            const currentLang = localStorage.getItem('hf_lang') || 'en';
+            translatePage(currentLang);
+        };
+
+        // --- GEMINI API INTEGRATION ---
+
+        // Helper to get formatted stats for prompt
+        const getOrganContext = () => {
+            const data = ORGAN_DATA[activeOrgan];
+            const statsStr = data.stats.map(s => `${s.title}: ${s.base} ${s.unit}`).join(', ');
+            return { name: data.title, stats: statsStr, nutrients: data.nutrients };
+        };
+
+        async function callGemini(promptText) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error('API Error');
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return null;
+            }
+        }
+
+        // Helper: Convert PCM Base64 to ArrayBuffer for AudioContext
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        // Helper: Convert PCM16 to WAV
+        function pcmToWav(pcmData, sampleRate = 24000) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const wavHeader = new ArrayBuffer(44);
+            const view = new DataView(wavHeader);
+
+            const writeString = (view, offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.byteLength, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.byteLength, true);
+
+            return new Blob([view, pcmData], { type: 'audio/wav' });
+        }
+
+        async function speakAnalysis() {
+            const btn = document.getElementById('speak-btn');
+            const textToSpeak = document.getElementById('ai-msg').innerText;
+
+            if (!textToSpeak || textToSpeak === "...") return;
+
+            btn.classList.add('loading');
+            btn.innerHTML = `<i class="ph-bold ph-spinner"></i>`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: textToSpeak }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: {
+                                voiceConfig: { prebuiltVoiceConfig: { voiceName: "Fenrir" } }
+                            }
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                const base64Audio = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+                if (base64Audio) {
+                    const pcmBuffer = base64ToArrayBuffer(base64Audio);
+                    const wavBlob = pcmToWav(pcmBuffer, 24000);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                }
+            } catch (e) {
+                console.error("TTS Error", e);
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = `<i class="ph-bold ph-speaker-high"></i>`;
+            }
+        }
+
+        async function simulateFuture() {
+            const modal = document.getElementById('future-modal');
+            const content = document.getElementById('simulation-content');
+            const ctx = getOrganContext();
+
+            document.getElementById('modal-organ-name').innerText = ctx.name;
+            modal.classList.add('open');
+            content.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);"><i class="ph-bold ph-spinner" style="animation:spin 1s infinite linear; font-size:24px;"></i><br><br>Simulating 5-Year Trajectory...</div>`;
+
+            const prompt = `Based on the following stats for the ${ctx.name} system: ${ctx.stats}. 
+            Create a strict JSON response with two short scenarios for a patient's health 5 years from now.
+            Format: { "current_path": "short description if they change nothing", "optimized_path": "short description if they improve habits" }
+            Do not use markdown formatting.`;
+
+            const result = await callGemini(prompt);
+
+            try {
+                const json = JSON.parse(result.replace(/```json|```/g, '')); // Clean potential markdown
+                content.innerHTML = `
+                    <div class="comparison-grid">
+                        <div class="path-col path-current">
+                            <span class="path-title" style="color:#ef4444;">Current Trajectory</span>
+                            <div style="font-size:12px; line-height:1.5;">${json.current_path}</div>
+                        </div>
+                        <div class="path-col path-optimized">
+                            <span class="path-title" style="color:#10b981;">Optimized Trajectory</span>
+                            <div style="font-size:12px; line-height:1.5;">${json.optimized_path}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                content.innerHTML = `<p style="padding:20px; color:var(--text-red);">Simulation failed. Please try again.</p>`;
+            }
+        }
+
+        function closeFutureModal() {
+            document.getElementById('future-modal').classList.remove('open');
+        }
+
+        async function analyzeCurrentOrgan() {
+            const btn = document.getElementById('analyze-btn');
+            const aiBox = document.getElementById('ai-box');
+            const aiMsg = document.getElementById('ai-msg');
+            const aiTitle = document.getElementById('ai-title');
+
+            const ctx = getOrganContext();
+
+            // Loading State
+            btn.classList.add('loading');
+            btn.innerHTML = `<i class="ph-bold ph-spinner"></i> Analyzing...`;
+            aiMsg.style.opacity = '0.5';
+
+            const prompt = `You are an advanced medical AI assistant. 
+            Analyze the following real-time vitals for the patient's ${ctx.name} system: ${ctx.stats}.
+            Provide a concise, professional clinical assessment (max 2 sentences). 
+            Focus on what these specific numbers indicate about current health status. Do not use markdown.`;
+
+            const result = await callGemini(prompt);
+
+            // Restore UI
+            btn.classList.remove('loading');
+            btn.innerHTML = `<i class="ph-bold ph-sparkle"></i> Analyze`;
+            aiMsg.style.opacity = '1';
+
+            if (result) {
+                aiTitle.innerText = "GEMINI CLINICAL INSIGHT";
+                aiMsg.innerText = result;
+                // Add a subtle flash effect
+                aiBox.style.background = "rgba(10, 132, 255, 0.15)";
+                setTimeout(() => aiBox.style.background = "", 500);
+            } else {
+                aiMsg.innerText = "Unable to connect to AI analysis. Please try again.";
+            }
+        }
+
+        async function generateDailyTip() {
+            const btn = document.getElementById('tip-btn');
+            const goalText = document.getElementById('goal-text');
+            const ctx = getOrganContext();
+
+            btn.classList.add('loading');
+            btn.innerHTML = `<i class="ph-bold ph-spinner"></i>`;
+
+            const prompt = `Provide one specific, actionable, 1-sentence micro-habit to improve the health of the ${ctx.name} system. 
+            Base it on general best practices for maintaining healthy: ${ctx.stats}.
+            Start with "Goal: " and make it sound like a personalized medical recommendation. Do not use markdown.`;
+
+            const result = await callGemini(prompt);
+
+            btn.classList.remove('loading');
+            btn.innerHTML = `<i class="ph-bold ph-magic-wand"></i> New Goal`;
+
+            if (result) {
+                goalText.style.opacity = 0;
+                setTimeout(() => {
+                    goalText.innerHTML = `<strong>${result}</strong>`;
+                    goalText.style.opacity = 1;
+                }, 300);
+            }
+        }
+
+        async function generateDiet() {
+            const btn = document.getElementById('diet-btn');
+            const box = document.getElementById('diet-result');
+            const content = document.getElementById('diet-content');
+            const ctx = getOrganContext();
+
+            // Find deficiencies
+            const deficiencies = ctx.nutrients.filter(n => n.status === 'deficient').map(n => n.name);
+            let promptText = "";
+
+            if (deficiencies.length > 0) {
+                promptText = `Suggest one simple, delicious meal (breakfast, lunch, or dinner) that is rich in ${deficiencies.join(', ')} to help the ${ctx.name}. Explain why briefly in one sentence. Do not use markdown.`;
+            } else {
+                promptText = `Suggest one healthy maintenance meal to support the ${ctx.name}. Explain benefits briefly in one sentence. Do not use markdown.`;
+            }
+
+            btn.classList.add('loading');
+
+            const result = await callGemini(promptText);
+
+            btn.classList.remove('loading');
+
+            if (result) {
+                content.innerText = result;
+                box.style.display = "block";
+            }
+        }
+
+        async function explainLab(el, labName) {
+            // Check if already open
+            const parent = el.closest('.lab-file');
+            let explanation = parent.nextElementSibling;
+
+            if (explanation && explanation.classList.contains('lab-explain-box')) {
+                explanation.remove();
+                return;
+            }
+
+            // Create loading UI
+            const loader = document.createElement('div');
+            loader.className = 'lab-explain-box';
+            loader.innerHTML = `<i class="ph-bold ph-spinner" style="animation:spin 1s infinite linear"></i> Analyzing ${labName}...`;
+            parent.after(loader);
+
+            const prompt = `Explain what a "${labName}" is in simple layman terms (max 2 sentences). Then list one common reason a doctor orders it. Do not use markdown.`;
+
+            const result = await callGemini(prompt);
+
+            if (result) {
+                loader.innerText = result;
+            } else {
+                loader.innerText = "Could not retrieve explanation.";
+            }
+        }
+
+        // --- TAB SWITCHER ---
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.target.classList.add('active');
+        };
+
+        // --- SYNC SIMULATION ---
+        window.simulateSync = () => {
+            const btn = document.getElementById('sync-btn');
+            const originalText = btn.innerHTML;
+
+            btn.classList.add('loading');
+            btn.innerHTML = `<i class="ph-bold ph-spinner"></i> Syncing...`;
+            // updateSyncIndicator('Pending...'); // Removed undefined function call
+
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                btn.style.background = '#10b981';
+                btn.innerHTML = `<i class="ph-bold ph-check"></i> Updated`;
+
+                // Show notification toast in AI box
+                const aiMsg = document.getElementById('ai-msg');
+                aiMsg.innerText = "New lab results synchronized from Quest Diagnostics. Vitamin D levels have been updated in your charts.";
+
+                // persistSync({ organ: activeOrgan, note: 'Labs refreshed' }); // Removed undefined function call
+
+                setTimeout(() => {
+                    btn.style.background = '';
+                    btn.innerHTML = originalText;
+                }, 3000);
+            }, 2000);
+        };
+
+        // --- IMMEDIATE ASSISTANCE ---
+        window.triggerEmergency = () => {
+            const btn = document.getElementById('sos-btn');
+            if (confirm("Are you sure you want to request IMMEDIATE MEDICAL ASSISTANCE? \n\nThis will alert local emergency services and your primary contact.")) {
+                btn.innerHTML = `<i class="ph-bold ph-spinner" style="animation:spin 1s infinite linear"></i> ALERTING...`;
+                btn.style.backgroundColor = '#b91c1c'; // Darker red
+
+                setTimeout(() => {
+                    alert("EMERGENCY DISPATCHED. \n\nAmbulance ETA: 8 minutes. \nMedical team has been notified.");
+                    btn.innerHTML = `<i class="ph-bold ph-check"></i> HELP ON WAY`;
+                    // Reset after a while
+                    setTimeout(() => {
+                        btn.innerHTML = `<i class="ph-bold ph-warning-octagon"></i> HELP`;
+                        btn.style.backgroundColor = 'var(--color-red)';
+                    }, 10000);
+                }, 2000);
+            }
+        };
+
+        // --- LIVE VITALS SIMULATION ---
+        const startLiveVitals = () => {
+            setInterval(() => {
+                if (activeOrgan === 'general') {
+                    // General Body Vitals
+                    const temp = (98.4 + Math.random() * 0.4).toFixed(1);
+                    const pulse = 70 + Math.floor(Math.random() * 12);
+                    const weight = 75 + (Math.random() * 0.2 - 0.1).toFixed(1);
+                    const sugar = 90 + Math.floor(Math.random() * 15);
+
+                    const el1 = document.getElementById('c1-val');
+                    const el2 = document.getElementById('c2-val');
+                    const el3 = document.getElementById('c3-val');
+                    const el4 = document.getElementById('c4-val');
+                    const main = document.getElementById('main-stat');
+
+                    if (el1 && !el1.innerHTML.includes('...')) el1.innerHTML = `${temp} <small>°F</small>`;
+                    if (el2 && !el2.innerHTML.includes('...')) el2.innerHTML = `${pulse} <small>bpm</small>`;
+                    if (el3 && !el3.innerHTML.includes('...')) el3.innerHTML = `${weight} <small>kg</small>`;
+                    if (el4 && !el4.innerHTML.includes('...')) el4.innerHTML = `${sugar} <small>mg/dL</small>`;
+                    if (main && !main.innerHTML.includes('Scanning')) main.innerHTML = `${pulse} <span style="font-size:14px;">bpm</span>`;
+
+                } else if (activeOrgan === 'heart') {
+                    // Heart Physics (BPM)
+                    const bpm = 70 + Math.floor(Math.random() * 15);
+                    const el = document.getElementById('c2-val');
+                    if (el && !el.innerHTML.includes('...')) el.innerHTML = `${bpm} <small>bpm</small>`;
+
+                    // Main Stat Update
+                    const main = document.getElementById('main-stat');
+                    if (main && !main.innerHTML.includes('Scanning')) main.innerHTML = `${bpm} <span style="font-size:14px;">bpm</span>`;
+
+                    // AUTO SOS (Only for Heart Demo)
+                    const user = localStorage.getItem('hf_demo_user');
+                    if ((user === 'rahul' || user === 'sam') && Math.random() > 0.95) {
+                        triggerEmergency();
+                    }
+                } else {
+                    // Generic Jitter for other organs
+                    const cards = document.querySelectorAll('.data-card');
+                    const target = cards[Math.floor(Math.random() * cards.length)];
+                    if (target) {
+                        const valEl = target.querySelector('.card-val');
+                        if (valEl && !valEl.innerHTML.includes('...')) {
+                            // Just a visual wiggle
+                            target.style.transform = 'scale(1.02)';
+                            setTimeout(() => target.style.transform = 'scale(1)', 200);
+                        }
+                    }
+                }
+            }, 2000);
+        };
+
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initThree();
+            renderOrganTray();
+            updateUI('general'); // Default
+            startLiveVitals(); // Start Vitals
+            hydrateSync();
+
+            // Event Delegation for Organ Clicks
+            document.querySelector('.organ-tray').addEventListener('click', (e) => {
+                const btn = e.target.closest('.organ-item');
+                if (!btn) return;
+
+                document.querySelectorAll('.organ-item').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+
+                loadOrganModel(btn.dataset.organ);
+                updateUI(btn.dataset.organ);
+            });
+
+            window.addEventListener('storage', (event) => {
+                if (event.key === SYNC_KEY) {
+                    hydrateSync();
+                }
+            });
+        });
+
+    </script>
+    <script type="module">
+        import { DemoUsers, injectDemoData } from './js/demo-data.js';
+        import { MedicalBrain } from './js/medical-brain.js';
+        import { translatePage } from './js/localization.js';
+        import { ServiceSync } from './js/services-sync.js';
+
+        // Initialize Brain
+        const brain = new MedicalBrain();
+
+        // Render Timeline
+        function renderTimeline() {
+            const feed = document.getElementById('timeline-feed');
+            const events = ServiceSync.getTimeline();
+
+            if (events.length === 0) return; // Keep default
+
+            let html = '';
+            events.slice(0, 3).forEach(ev => {
+                let color = 'var(--color-blue)';
+                if (ev.type === 'lab') color = '#8b5cf6';
+                if (ev.type === 'pharmacy') color = '#10b981';
+
+                html += `
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); padding:12px; border-radius:12px; margin-bottom:10px; display:flex; gap:12px; align-items:center;">
+                    <div style="width:36px; height:36px; border-radius:8px; background:${color}20; color:${color}; display:flex; align-items:center; justify-content:center;">
+                        <i class="ph-fill ${ev.icon}"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:13px; font-weight:600;">${ev.title}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">${ev.subtitle} • ${ev.meta}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:10px; font-weight:700; color:${color}; text-transform:uppercase;">${ev.status}</div>
+                    </div>
+                </div>
+                `;
+            });
+            feed.innerHTML = html;
+        }
+
+        // Listen for updates
+        window.addEventListener('hf_sync_update', renderTimeline);
+        // Initial render
+        renderTimeline();
+        // Export for global access if needed
+        window.ServiceSync = ServiceSync;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Inject Basic Data
+            injectDemoData();
+
+            // 2. Run Medical Analysis
+            const currentUserKey = localStorage.getItem('hf_demo_user') || 'dhivakaran';
+            const user = DemoUsers[currentUserKey];
+
+            if (user && user.vitals && user.labs) {
+                const analysis = brain.analyze(user, user.vitals, user.labs);
+                updateDashboardWithAI(analysis);
+            }
+        });
+
+        function updateDashboardWithAI(analysis) {
+            const brainContainer = document.querySelector('.header-left');
+
+            // Remove existing alerts if any
+            const existingAlert = document.getElementById('guardian-alert');
+            if (existingAlert) existingAlert.remove();
+
+            if (analysis.alerts.length > 0) {
+                const topAlert = analysis.alerts[0]; // Highest priority
+
+                const alertDiv = document.createElement('div');
+                alertDiv.id = 'guardian-alert';
+                alertDiv.className = `guardian-alert ${topAlert.level}`;
+                alertDiv.innerHTML = `
+                    <div class="alert-icon">
+                        <i class="ph-fill ph-siren"></i>
+                    </div>
+                    <div class="alert-content">
+                        <strong>Guardian AI Detected Risk</strong>
+                        <span>${topAlert.message}</span>
+                    </div>
+                    <div class="alert-actions">
+                        ${topAlert.level === 'critical' ? '<button class="action-btn blink" onclick="triggerSymptomCheck()">Emergency Protocol</button>' : ''}
+                        <button class="action-btn ghost">View Details</button>
+                    </div>
+                `;
+
+                // Inject below title
+                brainContainer.appendChild(alertDiv);
+            }
+        }
+
+        // Global function for Symptom Checker
+        window.triggerSymptomCheck = () => {
+            const modal = document.getElementById('symptom-modal');
+            const step1 = document.getElementById('sym-step-1');
+            const step2 = document.getElementById('sym-step-2');
+
+            modal.style.display = 'flex';
+            step1.style.display = 'block';
+            step2.style.display = 'none'; // Reset
+        };
+
+        window.closeSymptomModal = () => {
+            document.getElementById('symptom-modal').style.display = 'none';
+        };
+
+        window.nextSymptomStep = (isYes) => {
+            if (isYes) {
+                document.getElementById('sym-step-1').style.display = 'none';
+                document.getElementById('sym-step-2').style.display = 'block';
+
+                // Simulate "Calling" effect
+                setTimeout(() => {
+                    document.querySelector('.call-status').innerHTML = '<span class="blink">🚑 Ambulance Dispatched (Simulated)</span>';
+                }, 1500);
+            } else {
+                alert("Good. Monitor vitals closely. If pain starts, press Emergency Protocol again.");
+                closeSymptomModal();
+            }
+        };
+    </script>
+
+    <!-- Symptom Checker Modal -->
+    <div id="symptom-modal" class="symptom-modal-overlay" style="display: none;">
+        <div class="symptom-modal">
+            <div class="modal-header">
+                <h2><i class="ph-fill ph-heartbeat"></i> Cardiac Symptom Check</h2>
+                <button class="close-btn" onclick="closeSymptomModal()">×</button>
+            </div>
+
+            <div id="sym-step-1" class="modal-body">
+                <p class="question">Do you feel pressure, squeezing, fullness or pain in the center of your chest?</p>
+                <div class="grid-2">
+                    <button class="choice-btn danger" onclick="nextSymptomStep(true)">YES, I do</button>
+                    <button class="choice-btn" onclick="nextSymptomStep(false)">No</button>
+                </div>
+            </div>
+
+            <div id="sym-step-2" class="modal-body" style="display: none;">
+                <div class="emergency-screen">
+                    <i class="ph-fill ph-ambulance" style="font-size: 48px; color: #ef4444; margin-bottom: 20px;"></i>
+                    <h3>Emergency Protocol Activated</h3>
+                    <p>Based on your vitals and symptoms, we are contacting emergency services.</p>
+                    <div class="call-status">Connecting to nearest ambulance...</div>
+                    <ul class="first-aid">
+                        <li>Sit down and rest.</li>
+                        <li>Chew 300mg Aspirin immediately (if not allergic).</li>
+                        <li>Unlock your front door for paramedics.</li>
+                    </ul>
+                    <button class="choice-btn full" onclick="closeSymptomModal()">Dismiss Simulation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Guardian Alert Styles */
+        .guardian-alert {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: slideIn 0.5s ease-out;
+            max-width: 600px;
+        }
+
+        .guardian-alert.critical {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.05));
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .guardian-alert.high {
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.2), rgba(249, 115, 22, 0.05));
+            border-color: rgba(249, 115, 22, 0.4);
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .guardian-alert.critical .alert-icon {
+            background: #ef4444;
+            color: white;
+            animation: pulse-red 1s infinite;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-content strong {
+            display: block;
+            font-size: 14px;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .alert-content span {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: white;
+            color: black;
+            transition: 0.2s;
+        }
+
+        .action-btn.blink {
+            animation: blink-btn 1s infinite;
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.ghost {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        /* Symptom Modal */
+        .symptom-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .symptom-modal {
+            background: #1a1f2b;
+            border: 1px solid #ef4444;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.3);
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .question {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .choice-btn {
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .choice-btn.danger {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .choice-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .emergency-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .call-status {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 20px 0;
+            color: #fbbf24;
+        }
+
+        .first-aid {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 40px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .first-aid li {
+            margin-bottom: 10px;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        @keyframes blink-btn {
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <div id="demo-controls" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <!-- Injected via JS -->
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { injectDemoData } from './js/demo-data.js';
+        import { checkMedicalBrain } from './js/medical-brain-bridge.js';
+        import { translatePage } from './js/localization.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Data Injection
+            injectDemoData();
+
+            // 2. Medical Brain
+            checkMedicalBrain();
+
+            // 3. Language Init
+            const savedLang = localStorage.getItem('hf_lang') || 'en';
+            const switcher = document.getElementById('langSwitcher');
+            if (switcher) {
+                switcher.value = savedLang;
+                if (savedLang !== 'en') translatePage(savedLang);
+
+                switcher.addEventListener('change', (e) => {
+                    translatePage(e.target.value);
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

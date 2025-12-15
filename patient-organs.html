@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Organs</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR (Shared) -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR (Shared) -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
+            class="menu-label">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span
+            class="menu-label">Health</span></a>
+        <!-- Active State for Organs -->
+        <a class="menu-item active" href="patient-organs.html"><i class="ph-fill ph-scan"></i><span
+            class="menu-label">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
+            class="menu-label">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span
+            class="menu-label">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+            class="menu-label">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+            class="menu-label">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span
+            class="menu-label">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span
+            class="menu-label">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span
+            class="menu-label">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span
+            class="menu-label">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span
+            class="menu-label">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>My Anatomy</h2>
+              <h1>Organ <span>Atlas</span></h1>
+            </div>
+          </div>
+          <div class="top-toggles">
+            <div class="toggle-pill active"><i class="ph-fill ph-cube"></i> 3D View</div>
+            <div class="toggle-pill">List View</div>
+          </div>
+        </div>
+
+        <!-- 3D Models Grid -->
+        <div class="section-header">
+          <div class="blue-dot"></div> Interactive Models
+        </div>
+        <div class="atlas-grid">
+          <div class="atlas-card" data-organ="heart">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Heart</h3>
+              <span class="pill success">Synced</span>
+            </div>
+            <model-viewer src="3d_models/heart.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
+            <div class="atlas-links">
+              <a href="#">View ECG</a>
+              <a href="#">Cardiology</a>
+            </div>
+          </div>
+
+          <div class="atlas-card" data-organ="lungs">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Lungs</h3>
+              <span class="pill success">Normal</span>
+            </div>
+            <model-viewer src="3d_models/lungs.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
+            <div class="atlas-links">
+              <a href="#">Spirometry</a>
+              <a href="#">Pulmonology</a>
+            </div>
+          </div>
+
+          <div class="atlas-card" data-organ="kidneys">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Kidneys</h3>
+              <span class="pill warn">Drink Water</span>
+            </div>
+            <model-viewer src="3d_models/kidneys.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
+            <div class="atlas-links">
+              <a href="#">Urinalysis</a>
+              <a href="#">Nephrology</a>
+            </div>
+          </div>
+
+          <div class="atlas-card" data-organ="liver">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Liver</h3>
+              <span class="pill success">Healthy</span>
+            </div>
+            <model-viewer src="3d_models/liver.glb" camera-controls auto-rotate shadow-intensity="0.7"></model-viewer>
+            <div class="atlas-links">
+              <a href="#">LFT Report</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organ Status Grid -->
+        <div class="section-header" style="margin-top:30px;">
+          <div class="blue-dot"></div> System Status
+        </div>
+        <div class="organ-map">
+          <div class="organ-card">
+            <h3>Brain & Neuro</h3>
+            <div class="section-sub">Stress: Low • Sleep: 7h</div>
+            <span class="pill success">Optimal</span>
+          </div>
+          <div class="organ-card">
+            <h3>Digestive</h3>
+            <div class="section-sub">Gut Health: Good</div>
+            <span class="pill success">Balanced</span>
+          </div>
+          <div class="organ-card">
+            <h3>Musculoskeletal</h3>
+            <div class="section-sub">Activity: High</div>
+            <span class="pill success">Active</span>
+          </div>
+          <div class="organ-card">
+            <h3>Endocrine</h3>
+            <div class="section-sub">Thyroid: Normal</div>
+            <span class="pill success">Stable</span>
+          </div>
+          <div class="organ-card">
+            <h3>Immune</h3>
+            <div class="section-sub">WBC: Normal</div>
+            <span class="pill success">Strong</span>
+          </div>
+          <div class="organ-card">
+            <h3>Reproductive</h3>
+            <div class="section-sub">Hormones: Normal</div>
+            <span class="pill success">Good</span>
+          </div>
+        </div>
+
+        <!-- Immersive Studio Block -->
+        <div class="card" style="margin-top:20px;">
+          <h3><i class="ph-fill ph-scan" style="color:var(--color-blue); margin-right:8px;"></i> Immersive Studio</h3>
+          <p>Select an organ above to isolate it in the immersive studio view.</p>
+          <div class="model-stage">
+            <model-viewer id="organ_model_viewer"
+              src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Earth/glTF-Binary/Earth.glb"
+              camera-controls auto-rotate shadow-intensity="0.8" interaction-prompt="none"></model-viewer>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module">
+    import { injectDemoData } from './js/demo-data.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      injectDemoData();
+    });
+  </script>
+</body>
+
+</html>

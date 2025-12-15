@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Health Board</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+
+  <style>
+    /* Specific Health Board Styles */
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* Vitals Grid from original but adapted */
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .vital-card {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .vital-card small {
+      display: block;
+      font-size: 11px;
+      opacity: 0.7;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .vital-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      display: block;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat small {
+      display: block;
+      font-size: 11px;
+      opacity: 0.6;
+      margin-bottom: 4px;
+    }
+
+    .stat strong {
+      color: var(--color-blue);
+      font-size: 16px;
+    }
+
+    .notice {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #60a5fa;
+      margin-top: 15px;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+    }
+
+    .timeline-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .report-card {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 15px;
+      border-radius: 12px;
+      border-left: 3px solid var(--color-blue);
+    }
+
+    .report-meta {
+      font-size: 12px;
+      opacity: 0.6;
+      margin: 4px 0;
+    }
+
+    .report-ai {
+      font-size: 13px;
+      color: #e2e8f0;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 16px;
+      color: white;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      opacity: 0.7;
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+
+    /* Table Styles */
+    .table-card {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR (Shared) -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR (Shared) -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
+            class="menu-label">Dashboard</span></a>
+        <!-- Active State for Health -->
+        <a class="menu-item active" href="patient-health.html"><i class="ph-fill ph-pulse"></i><span
+            class="menu-label">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span
+            class="menu-label">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
+            class="menu-label">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span
+            class="menu-label">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+            class="menu-label">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+            class="menu-label">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span
+            class="menu-label">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span
+            class="menu-label">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span
+            class="menu-label">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span
+            class="menu-label">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span
+            class="menu-label">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>Status & Vitals</h2>
+              <h1>Health <span>Board</span></h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Vitals and Hero -->
+        <div class="health-grid">
+          <div class="card"
+            style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(30, 41, 59, 0.4));">
+            <span class="pill soft green">Live Vitals</span>
+            <h3 style="margin-top:10px; font-size:20px;">Real-time Checks</h3>
+            <p class="section-sub">Live streaming from paired devices. AI monitoring active.</p>
+
+            <div class="vitals-grid">
+              <div class="vital-card"><small>Heart Rate</small><span class="vital-value"
+                  id="v_hr">--</span><small>bpm</small></div>
+              <div class="vital-card"><small>Blood Pressure</small><span class="vital-value"
+                  id="v_bp">--</span><small>mmHg</small></div>
+              <div class="vital-card"><small>SpO₂</small><span class="vital-value" id="v_spo2">--</span><small>%</small>
+              </div>
+              <div class="vital-card"><small>Temp</small><span class="vital-value"
+                  id="v_temp">--</span><small>°F</small></div>
+            </div>
+            <div class="notice" id="ai_summary">Waiting for stream...</div>
+          </div>
+
+          <div class="card">
+            <h3>Blood & Immunity</h3>
+            <p class="section-sub">Recent CBC analysis and hydration levels.</p>
+            <div class="stat-grid">
+              <div class="stat"><small>Hemoglobin</small><strong id="hb_value">13.5</strong></div>
+              <div class="stat"><small>Hydration</small><strong id="water_value">Good</strong></div>
+              <div class="stat"><small>Infection</small><strong id="infection_value">Low</strong></div>
+              <div class="stat"><small>Anemia</small><strong id="anemia_value">No</strong></div>
+            </div>
+            <div class="chip-row" style="margin-top:15px;">
+              <span class="pill soft" id="blood_signal">Balanced</span>
+              <span class="pill soft" id="cbc_signal">Normal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI LAB SCANNER SECTION (NEW) -->
+      <div class="card" id="scanner_ui"
+        style="margin-top:20px; border:1px dashed var(--color-blue); background:rgba(10, 132, 255, 0.03);">
+        <div id="scan_intro">
+          <div style="text-align:center; padding:30px;">
+            <i class="ph-duotone ph-scan" style="font-size:48px; color:var(--color-blue); margin-bottom:15px;"></i>
+            <h3>AI Report Scanner</h3>
+            <p style="opacity:0.7; max-width:400px; margin:0 auto 20px;">Upload your PDF/JPG lab report. Our AI will
+              extract values, check quality, and give you a medical opinion in layman terms.</p>
+
+            <div id="scan_dropzone"
+              style="border:2px dashed var(--glass-border); border-radius:12px; padding:30px; cursor:pointer; transition:0.3s;">
+              <span class="pill soft" style="margin-bottom:10px;">High Quality Only (>50KB)</span>
+              <div style="font-weight:700;">Click or Drop Report Here</div>
+            </div>
+            <input type="file" id="file_input" style="display:none;" accept=".pdf,.jpg,.png,.jpeg">
+          </div>
+        </div>
+
+        <div id="scan_progress" style="display:none; text-align:center; padding:40px;">
+          <div
+            style="width:60px; height:60px; border:4px solid var(--glass-border); border-top:4px solid var(--color-blue); border-radius:50%; margin:0 auto 20px; animation:spin 1s infinite linear;">
+          </div>
+          <h3>Scanning Document...</h3>
+          <p style="font-size:12px; opacity:0.6;">Extracting Hematology, Biochemistry & screening for errors.</p>
+        </div>
+
+        <div id="scan_results" style="display:none; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div
+              style="font-size:12px; font-weight:700; color:var(--color-green); display:flex; gap:8px; align-items:center;">
+              <i class="ph-fill ph-check-circle"></i> QUALITY VERIFIED
+            </div>
+            <button onclick="location.reload()" class="pill ghost small">Scan Another</button>
+          </div>
+
+          <div
+            style="background:var(--glass-bg); padding:15px; border-radius:12px; border-left:4px solid var(--color-blue); margin-bottom:20px;">
+            <h4 style="margin:0 0 5px 0;">Layman Opinion</h4>
+            <p id="res_summary" style="font-size:14px; line-height:1.5;">Analysis loading...</p>
+          </div>
+
+          <div id="res_alerts" class="notice"
+            style="display:none; background:rgba(239, 68, 68, 0.1); border-color:#ef4444; color:#fca5a5;"></div>
+
+          <div id="res_grid" class="grid-3" style="margin-top:20px; margin-bottom:20px;">
+            <!-- Grid Items -->
+          </div>
+
+          <div id="res_next"
+            style="font-size:13px; opacity:0.8; text-align:center; border-top:1px solid var(--glass-border); padding-top:15px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Lab Intelligence -->
+      <h3 style="margin: 30px 0 15px 0; font-size:18px; color:white;">Lab Intelligence</h3>
+      <div class="health-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+        <div class="card">
+          <h3>LFT - Liver</h3>
+          <p class="section-sub" id="lab_lft_ai">Liver values normal.</p>
+          <div class="stat-grid">
+            <div class="stat"><small>SGOT</small><strong id="lab_sgot">--</strong></div>
+            <div class="stat"><small>SGPT</small><strong id="lab_sgpt">--</strong></div>
+            <div class="stat"><small>Bilirubin</small><strong id="lab_bilirubin">--</strong></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>KFT - Kidney</h3>
+          <p class="section-sub" id="lab_kft_ai">Kidney function stable.</p>
+          <div class="stat-grid">
+            <div class="stat"><small>Creatinine</small><strong id="lab_creatinine">--</strong></div>
+            <div class="stat"><small>Urea</small><strong id="lab_urea">--</strong></div>
+            <div class="stat"><small>Sodium</small><strong id="lab_sodium">--</strong></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Cardiac</h3>
+          <p class="section-sub" id="lab_cardiac_ai">Heart markers low stress.</p>
+          <div class="stat-grid">
+            <div class="stat"><small>Troponin</small><strong id="lab_troponin">--</strong></div>
+            <div class="stat"><small>CRP</small><strong id="lab_crp">--</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doctor Timeline (Mapped from Labs) -->
+      <h3 style="margin: 30px 0 15px 0; font-size:18px; color:white;">Doctor Timeline</h3>
+      <div id="lab_timeline" class="timeline-grid"></div>
+
+      <!-- Radiology -->
+      <h3 style="margin: 30px 0 15px 0; font-size:18px; color:white;">Radiology Board</h3>
+      <div class="table-card card">
+        <table>
+          <thead>
+            <tr>
+              <th>Study</th>
+              <th>Status</th>
+              <th>ETA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-rad-study="usg-abdomen">
+              <td>USG Abdomen</td>
+              <td><span class="chip" data-rad-status>Ready</span></td>
+              <td><span data-rad-eta>Today</span></td>
+            </tr>
+            <tr data-rad-study="ct-head">
+              <td>MRI / CT Head</td>
+              <td><span class="chip" data-rad-status>Scheduled</span></td>
+              <td><span data-rad-eta>Tmrw</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+  <script type="module">
+    import { DemoUsers, injectDemoData } from './js/demo-data.js';
+    import { MedicalBrain } from './js/medical-brain.js';
+    import { LabAnalyzer } from './js/lab-analyzer.js';
+
+    const brain = new MedicalBrain();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      injectDemoData();
+
+      // --- LAB SCANNER LOGIC ---
+      const dropZone = document.getElementById('scan_dropzone');
+      const scannerUI = document.getElementById('scanner_ui');
+      const resultsUI = document.getElementById('scan_results');
+
+      if (dropZone) {
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--color-blue)'; });
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--glass-border)'; });
+        dropZone.addEventListener('drop', handleDrop);
+        dropZone.addEventListener('click', () => document.getElementById('file_input').click());
+        document.getElementById('file_input').addEventListener('change', (e) => handleFiles(e.target.files));
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        handleFiles(e.dataTransfer.files);
+      }
+
+      async function handleFiles(files) {
+        if (files.length === 0) return;
+        const file = files[0];
+
+        // 1. UI: Show Scanning
+        document.getElementById('scan_intro').style.display = 'none';
+        document.getElementById('scan_progress').style.display = 'block';
+
+        // 2. Engine: Scan
+        try {
+          const data = await LabAnalyzer.scanDocument(file);
+
+          // 3. Engine: Analyze
+          // Identify user meds (Simulated from Demo user)
+          const userMeds = ["Metformin 500mg"];
+          const analysis = LabAnalyzer.analyze(data, userMeds);
+
+          // 4. Render Results
+          renderAnalysis(analysis);
+
+        } catch (err) {
+          alert(err);
+          location.reload();
+        }
+      }
+
+      function renderAnalysis(analysis) {
+        document.getElementById('scan_progress').style.display = 'none';
+        resultsUI.style.display = 'block';
+
+        // Summary
+        document.getElementById('res_summary').innerHTML = analysis.summary;
+
+        // Grid
+        let gridHtml = '';
+        analysis.results.forEach(r => {
+          gridHtml += `
+             <div class="stat" style="border-left: 3px solid ${r.color === 'red' ? '#ef4444' : '#10b981'};">
+                <small>${r.label}</small>
+                <strong style="font-size:18px; color:white;">${r.value} <span style="font-size:10px; opacity:0.6;">${r.unit}</span></strong>
+                <div style="font-size:11px; margin-top:4px; color:${r.color === 'red' ? '#ef4444' : '#10b981'}; font-weight:700;">${r.message}</div>
+                <div style="font-size:10px; opacity:0.5; margin-top:2px;">Range: ${r.range}</div>
+             </div>
+             `;
+        });
+        document.getElementById('res_grid').innerHTML = gridHtml;
+
+        // Alerts
+        if (analysis.alerts.length > 0) {
+          const alertBox = document.getElementById('res_alerts');
+          alertBox.style.display = 'block';
+          alertBox.innerHTML = analysis.alerts.map(a => `<div style="margin-bottom:5px;">⚠️ ${a.msg}</div>`).join('');
+        }
+
+        // Follow Ups
+        if (analysis.followUps.length > 0) {
+          document.getElementById('res_next').innerHTML = `<strong>Top Recommendation:</strong> Check ${analysis.followUps.join(', ')} to confirm cause.`;
+        }
+      }
+
+      const currentUserKey = localStorage.getItem('hf_demo_user') || 'dhivakaran';
+      const user = DemoUsers[currentUserKey];
+
+      if (user && user.vitals && user.labs) {
+        // Run AI Analysis
+        const analysis = brain.analyze(user, user.vitals, user.labs);
+
+        // Update UI Elements
+        document.getElementById('v_hr').textContent = user.vitals.heartRate;
+        document.getElementById('v_bp').textContent = `${user.vitals.bpSys}/${user.vitals.bpDia}`;
+        document.getElementById('v_spo2').textContent = user.vitals.spo2;
+        document.getElementById('v_temp').textContent = user.vitals.temp;
+
+        // Lab Fill
+        if (user.labs) {
+          if (user.labs.platelets) document.getElementById('hb_value').textContent = '12.4'; // Example fallback or parse
+          if (user.labs.troponin !== undefined) document.getElementById('lab_troponin').textContent = user.labs.troponin;
+        }
+
+        // Guardian AI Feedback
+        const aiSummary = document.getElementById('ai_summary');
+
+        if (analysis.isCritical) {
+          aiSummary.innerHTML = `<strong>⚠️ CRITICAL ALERT:</strong> ${analysis.alerts[0].message}`;
+          aiSummary.style.background = 'rgba(239, 68, 68, 0.2)';
+          aiSummary.style.color = '#fca5a5';
+          aiSummary.style.borderColor = '#ef4444';
+        } else if (analysis.alerts.length > 0) {
+          aiSummary.innerHTML = `<strong>⚠️ Warning:</strong> ${analysis.alerts[0].message}`;
+          aiSummary.style.background = 'rgba(245, 158, 11, 0.2)';
+          aiSummary.style.color = '#fcd34d';
+        } else {
+          aiSummary.innerHTML = `<strong>✅ Guardian AI:</strong> All monitored metrics stable.`;
+          aiSummary.style.background = 'rgba(16, 185, 129, 0.1)';
+          aiSummary.style.color = '#6ee7b7';
+        }
+
+        // Trigger Advice in Timeline
+        const timeline = document.getElementById('lab_timeline');
+        if (analysis.advice.length > 0 && timeline) {
+          // Prepend new advice
+          const adviceCard = document.createElement('article');
+          adviceCard.className = 'report-card';
+          adviceCard.style.borderLeftColor = analysis.isCritical ? '#ef4444' : '#f59e0b';
+          adviceCard.innerHTML = `<h4>Guardian AI Suggestion</h4>
+                <div class="report-meta">Just now • Automated Analysis</div>
+                <div class="report-ai">${analysis.advice[0]}</div>`;
+          timeline.prepend(adviceCard);
+        }
+      }
+    });
+  </script>
+
+  <!-- Preserved Logic from original file -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const safeParse = (key) => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } };
+      const labSnap = safeParse('lab-dashboard-latest');
+      const healthSnap = safeParse('health-board-status');
+      const vitalsSnap = safeParse('dashboardVitals');
+
+      const panels = labSnap.latestPanels || {};
+      const history = (labSnap.history || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const setText = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+
+      setText('v_hr', vitalsSnap.stats?.find(s => /heart/i.test(s.label))?.val || '--');
+      setText('v_bp', vitalsSnap.stats?.find(s => /pressure|bp/i.test(s.label))?.val || '--');
+      setText('v_spo2', vitalsSnap.stats?.find(s => /SpO/i.test(s.label))?.val || '--');
+      setText('v_temp', `${panels.temperature ? (panels.temperature.toFixed ? panels.temperature.toFixed(1) : panels.temperature) : '--'}`);
+
+      setText('lab_sgot', `${panels.sgot || '--'}`);
+      setText('lab_sgpt', `${panels.sgpt || '--'}`);
+      setText('lab_bilirubin', `${panels.bilirubin || '--'}`);
+      setText('lab_creatinine', `${panels.creatinine || '--'}`);
+      setText('lab_urea', `${panels.urea || '--'}`);
+      setText('lab_sodium', `${panels.sodium || '--'}`);
+      setText('lab_troponin', panels.troponin || '--');
+      setText('lab_crp', panels.crp || '--');
+
+      const timeline = document.getElementById('lab_timeline');
+      if (timeline) {
+        timeline.innerHTML = '';
+        history.slice(0, 8).forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'report-card';
+          card.innerHTML = `<h4>${item.title || 'Lab slot'}</h4><div class="report-meta">${item.lab || 'Concierge lab'} • ${new Date(item.date).toLocaleString()}</div><div class="report-ai">${item.status || 'Ready'} — ${item.note || 'Synced to dashboard.'}</div>`;
+          timeline.appendChild(card);
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Medical Log</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+
+  <style>
+    /* Specific Styles for Log */
+    .log-table-container {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 15px;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .gps {
+      font-family: monospace;
+      color: var(--color-blue);
+      opacity: 0.8;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-badge.sos {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.2);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR (Shared) -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR (Shared) -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
+            class="menu-label">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span
+            class="menu-label">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span
+            class="menu-label">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
+            class="menu-label">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span
+            class="menu-label">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+            class="menu-label">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+            class="menu-label">Insurance</span></a>
+        <!-- Active State for Log -->
+        <a class="menu-item active" href="patient-log.html"><i class="ph-fill ph-clipboard-text"></i><span
+            class="menu-label">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span
+            class="menu-label">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span
+            class="menu-label">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span
+            class="menu-label">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span
+            class="menu-label">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>Activity Tracker</h2>
+              <h1>Medical <span>Log</span></h1>
+            </div>
+          </div>
+          <div class="top-toggles">
+            <div id="status" class="status-badge"><i class="ph-fill ph-broadcast"></i> Live GPS Active</div>
+          </div>
+        </div>
+
+        <div class="log-table-container">
+          <table id="log-table">
+            <thead>
+              <tr>
+                <th>TimeStamp</th>
+                <th>Category</th>
+                <th>Details / Value</th>
+                <th>Location (GPS)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS Populates this -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { injectDemoData } from './js/demo-data.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      injectDemoData();
+    });
+  </script>
+
+  <!-- Preserved Log Logic -->
+  <script>
+    const simulateGPS = () => {
+      const baseLat = 37.7749, baseLng = -122.4194;
+      return {
+        lat: (baseLat + (Math.random() - 0.5) * 0.02).toFixed(5),
+        lng: (baseLng + (Math.random() - 0.5) * 0.02).toFixed(5)
+      };
+    };
+
+    const formatTime = (ts) => new Date(ts).toLocaleString();
+
+    const renderLog = () => {
+      const tbody = document.querySelector('#log-table tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const entries = JSON.parse(localStorage.getItem('medicalLog') || '[]').slice(-50).reverse();
+      if (entries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; opacity:0.5;">No activity logged yet.</td></tr>';
+        return;
+      }
+      entries.forEach(entry => {
+        const tr = document.createElement('tr');
+        const gps = entry.location || simulateGPS();
+
+        // Format details nicely
+        let details = `${entry.organ || ''}`;
+        if (entry.stats && Array.isArray(entry.stats)) {
+          details += ` ${entry.stats.map(s => s.val).join(' | ')}`;
+        } else if (entry.value) {
+          details += ` ${entry.value}`;
+        }
+
+        tr.innerHTML = `
+                <td style="color:var(--text-muted); font-size:13px;">${formatTime(entry.ts)}</td>
+                <td><span class="pill soft small">${entry.category}</span></td>
+                <td>${details}</td>
+                <td class="gps">${gps.lat}, ${gps.lng}</td>
+            `;
+        tbody.appendChild(tr);
+      });
+    };
+
+    const appendLog = () => {
+      const snapshot = JSON.parse(localStorage.getItem('dashboardVitals') || '{}');
+      const gps = simulateGPS();
+      const entries = JSON.parse(localStorage.getItem('medicalLog') || '[]');
+
+      // Only append if we have some data or periodically
+      // For demo, let's append a heartbeat log
+      const newEntry = {
+        ts: Date.now(),
+        category: 'Vitals',
+        organ: snapshot.organ || 'Heart',
+        stats: snapshot.stats || [{ label: 'HR', val: '72 bpm' }],
+        location: gps
+      };
+
+      entries.push(newEntry);
+      localStorage.setItem('medicalLog', JSON.stringify(entries.slice(-200)));
+      localStorage.setItem('lastLogTs', Date.now());
+      renderLog();
+    };
+
+    const watchdog = () => {
+      const last = parseInt(localStorage.getItem('lastLogTs') || '0', 10);
+      const status = document.getElementById('status');
+      if (Date.now() - last > 20 * 60 * 1000) {
+        status.innerHTML = '<i class="ph-bold ph-warning"></i> SOS TRIGGERED: Signal Lost';
+        status.classList.add('sos');
+        localStorage.setItem('sosTriggered', '1');
+      }
+    };
+
+    // Initialize
+    renderLog();
+    // Add one initial log if empty
+    if (JSON.parse(localStorage.getItem('medicalLog') || '[]').length === 0) {
+      appendLog();
+    }
+
+    // Interval
+    setInterval(appendLog, 600000); // Every 10 mins auto log
+    setInterval(watchdog, 60000);
+  </script>
+</body>
+
+</html>

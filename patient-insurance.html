@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Insurance</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+
+  <style>
+    /* Modern Insurance UI */
+    .glass-panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+    }
+
+    /* Policy Flip Cards */
+    .policy-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .policy-card {
+      perspective: 1000px;
+      height: 220px;
+      cursor: pointer;
+    }
+
+    .policy-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: left;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .policy-card.flipped .policy-inner {
+      transform: rotateY(180deg);
+    }
+
+    .policy-front,
+    .policy-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .policy-front {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+    }
+
+    .policy-front.retail {
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    }
+
+    .policy-front.corporate {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+    }
+
+    .policy-back {
+      background: #0f172a;
+      transform: rotateY(180deg);
+      border: 1px solid var(--color-blue);
+    }
+
+    .chip {
+      width: 40px;
+      height: 30px;
+      background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+      border-radius: 6px;
+      margin-bottom: 15px;
+      opacity: 0.8;
+    }
+
+    /* Bill Analyzer */
+    .bill-drop-zone {
+      border: 2px dashed var(--glass-border);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .bill-drop-zone:hover {
+      border-color: var(--color-blue);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .bill-result {
+      display: none;
+      margin-top: 20px;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cost-row.total {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: none;
+      padding-top: 15px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    /* Loan Badge */
+    .loan-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span class="menu-label"
+            data-i18n="dashboard">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span class="menu-label"
+            data-i18n="health">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span class="menu-label"
+            data-i18n="organs">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span class="menu-label"
+            data-i18n="labs">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span class="menu-label"
+            data-i18n="pharmacy">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span class="menu-label"
+            data-i18n="hospitals">Hospitals</span></a>
+        <!-- Active -->
+        <a class="menu-item active" href="patient-insurance.html"><i class="ph-fill ph-shield-plus"></i><span
+            class="menu-label" data-i18n="insurance">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span class="menu-label"
+            data-i18n="log">Log</span></a>
+        <a class="menu-item" href="patient-devices.html"><i class="ph ph-watch"></i><span class="menu-label"
+            data-i18n="devices">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span class="menu-label"
+            data-i18n="family">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span class="menu-label"
+            data-i18n="profile">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span class="menu-label"
+            data-i18n="settings">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label" data-i18n="exit">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>Coverage & Claims</h2>
+              <h1>Insurance <span>Vault</span></h1>
+            </div>
+          </div>
+          <div class="header-right" style="text-align:right;">
+            <div style="font-size:12px; opacity:0.6;">Adhaar Linked Identity</div>
+            <div style="font-size:14px; font-weight:700; font-family:monospace; letter-spacing:1px;"
+              id="adhaar-display">XXXX-XXXX-XXXX</div>
+          </div>
+        </div>
+
+        <!-- POLICIES DECK -->
+        <div class="policy-deck" id="policy-deck">
+          <!-- Injected by JS -->
+          <div style="padding:40px; text-align:center; grid-column:1/-1; opacity:0.5;">Loading Policies...</div>
+        </div>
+
+        <div class="dashboard-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+
+          <!-- LEFT: BILL ANALYZER -->
+          <div class="glass-panel">
+            <div class="section-header" style="margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="background:rgba(16,185,129,0.15); padding:6px; border-radius:8px; color:#10b981;">
+                  <i class="ph-fill ph-receipt"></i>
+                </div>
+                <h3 style="margin:0;">Bill Evaluator</h3>
+              </div>
+            </div>
+
+            <div class="bill-drop-zone" id="bill-drop">
+              <i class="ph-bold ph-upload-simple" style="font-size:32px; opacity:0.5; margin-bottom:10px;"></i>
+              <div style="font-size:14px; font-weight:600;">Drop Hospital Bill</div>
+              <div style="font-size:12px; opacity:0.6;">PDF, IMG (Simulated)</div>
+            </div>
+
+            <div id="bill-result" class="bill-result">
+              <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:15px; margin-bottom:20px;">
+                <div class="cost-row">
+                  <span style="opacity:0.7;">Total Bill</span>
+                  <span id="res-total">₹0</span>
+                </div>
+                <div class="cost-row">
+                  <span style="color:#ef4444; opacity:0.9;">Non-Payables (Gloves, Reg)</span>
+                  <span style="color:#ef4444;" id="res-deduct">-₹0</span>
+                </div>
+                <div class="cost-row">
+                  <span style="color:#f59e0b; opacity:0.9;">Co-Pay (10%)</span>
+                  <span style="color:#f59e0b;" id="res-copay">-₹0</span>
+                </div>
+                <div class="cost-row total">
+                  <span>Insurance Covers</span>
+                  <span style="color:#10b981;" id="res-approved">₹0</span>
+                </div>
+              </div>
+
+              <div
+                style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239,68,68,0.3); border-radius:12px; padding:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div style="font-size:11px; text-transform:uppercase; color:#ef4444; font-weight:700;">You Pay</div>
+                    <div style="font-size:24px; font-weight:700;" id="res-oop">₹0</div>
+                  </div>
+                  <button class="pill primary" id="btn-loan" style="background:#10b981;">
+                    <i class="ph-bold ph-bank"></i> Get 0% EMI
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: CLAIMS TRACKER -->
+          <div class="glass-panel">
+            <div class="section-header" style="margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="background:rgba(59, 130, 246, 0.15); padding:6px; border-radius:8px; color:#3b82f6;">
+                  <i class="ph-fill ph-files"></i>
+                </div>
+                <h3 style="margin:0;">Active Claims</h3>
+              </div>
+            </div>
+
+            <div id="claim-list" style="display:flex; flex-direction:column; gap:15px;">
+              <div style="text-align:center; padding:30px; opacity:0.5; font-size:13px;">
+                No active claims found.
+              </div>
+            </div>
+
+            <!-- Loan Modal Injection Target -->
+            <div id="loan-status" style="margin-top:20px; display:none;">
+              <div class="glass-panel"
+                style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent); border-color:#10b981;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                  <div
+                    style="width:40px; height:40px; background:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">
+                    <i class="ph-bold ph-check"></i>
+                  </div>
+                  <div>
+                    <div style="font-weight:700; color:#10b981;">Loan Approved</div>
+                    <div style="font-size:12px; opacity:0.8;">₹<span id="loan-amt">0</span> transferred to Hospital.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script type="module">
+    import { injectDemoData, DemoUsers } from './js/demo-data.js';
+    import { InsuranceEngine } from './js/insurance-engine.js';
+    import { translatePage } from './js/localization.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Init Data
+      injectDemoData();
+      translatePage(localStorage.getItem('hf_lang') || 'en');
+
+      // 2. Load User Context
+      const currentUser = localStorage.getItem('hf_current_user') || 'dhivakaran';
+      const userProfile = DemoUsers[currentUser];
+      if (userProfile && userProfile.adhaar) {
+        document.getElementById('adhaar-display').innerText = userProfile.adhaar;
+      }
+
+      // 3. Render Policies
+      const policies = InsuranceEngine.getPolicies(userProfile);
+      const deck = document.getElementById('policy-deck');
+      deck.innerHTML = policies.map(p => `
+                <div class="policy-card" onclick="this.classList.toggle('flipped')">
+                    <div class="policy-inner">
+                        <div class="policy-front ${p.type.toLowerCase()}">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:start;">
+                                    <div class="chip"></div>
+                                    <img src="${p.logo}" style="width:32px; height:32px; border-radius:50%;">
+                                </div>
+                                <h3 style="font-size:18px; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.3);">${p.insurer}</h3>
+                                <div style="font-size:12px; opacity:0.8;">${p.plan}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; opacity:0.7;">Policy Number</div>
+                                <div style="font-family:monospace; font-size:16px; letter-spacing:2px;">${p.id}</div>
+                                <div style="display:flex; justify-content:space-between; margin-top:15px;">
+                                    <div>
+                                        <div style="font-size:10px; opacity:0.7;">Cover</div>
+                                        <div style="font-weight:700;">₹${(p.sumInsured / 100000).toFixed(1)}L</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-size:10px; opacity:0.7;">TPA</div>
+                                        <div style="font-weight:700;">${p.tpa}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="policy-back">
+                            <div>
+                                <h3 style="color:var(--color-blue); margin-bottom:15px;">Features</h3>
+                                <ul style="padding-left:15px; font-size:13px; color:var(--text-muted); line-height:1.6;">
+                                    ${p.features.map(f => `<li>${f}</li>`).join('')}
+                                    <li>Room Limit: ${p.type === 'Corporate' ? 'Private' : 'Shared'}</li>
+                                    <li>Co-Pay: ${p.type === 'Corporate' ? '10%' : 'None'}</li>
+                                </ul>
+                            </div>
+                            <button class="pill ghost" style="width:100%; border-color:rgba(255,255,255,0.2);">Download E-Card</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+      // 4. Bill Analyzer Interaction
+      const drop = document.getElementById('bill-drop');
+      drop.onclick = () => {
+        drop.innerHTML = '<i class="ph-bold ph-spinner" style="animation:spin 1s infinite linear; font-size:32px;"></i><br>Analyzing Bill AI...';
+
+        // Simulate Processing
+        setTimeout(() => {
+          const sampleBill = 125000;
+          const evalResult = InsuranceEngine.evaluateBill(sampleBill, policies[0]);
+
+          document.getElementById('res-total').innerText = `₹${evalResult.total.toLocaleString()}`;
+          document.getElementById('res-deduct').innerText = `-₹${evalResult.deductions.consumables.toLocaleString()}`;
+          document.getElementById('res-copay').innerText = `-₹${evalResult.deductions.coPay.toLocaleString()}`;
+          document.getElementById('res-approved').innerText = `₹${evalResult.approved.toLocaleString()}`;
+          document.getElementById('res-oop').innerText = `₹${evalResult.outOfPocket.toLocaleString()}`;
+
+          document.getElementById('bill-result').style.display = 'block';
+          drop.style.display = 'none';
+
+          // Loan logic
+          const loanBtn = document.getElementById('btn-loan');
+          loanBtn.onclick = () => {
+            const eligibility = InsuranceEngine.checkLoanEligibility(evalResult.outOfPocket);
+            if (eligibility.eligible) {
+              document.getElementById('loan-status').style.display = 'block';
+              document.getElementById('loan-amt').innerText = evalResult.outOfPocket.toLocaleString();
+              loanBtn.innerText = 'Applied';
+              loanBtn.disabled = true;
+
+              // Log Claim
+              const claim = InsuranceEngine.submitClaim({ hospital: 'Apollo Hospitals', amount: evalResult.approved });
+              renderClaim(claim);
+            }
+          };
+
+        }, 1500);
+      };
+
+      function renderClaim(claim) {
+        const list = document.getElementById('claim-list');
+        list.innerHTML = `
+                    <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:15px; border-left:3px solid #f59e0b;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <strong style="font-size:13px;">${claim.claimId}</strong>
+                            <span style="font-size:10px; background:rgba(245,158,11,0.2); color:#f59e0b; padding:2px 6px; border-radius:4px;">${claim.status}</span>
+                        </div>
+                        <div style="font-size:12px; opacity:0.7;">Apollo Hospitals • Cashless</div>
+                        <div style="margin-top:10px; font-size:10px; display:flex; gap:10px;">
+                            <span style="color:#10b981;"><i class="ph-fill ph-check-circle"></i> Intimated</span>
+                            <span style="opacity:0.5;">Docs Verified</span>
+                            <span style="opacity:0.5;">Settled</span>
+                        </div>
+                    </div>
+                ` + list.innerHTML;
+      }
+
+    });
+  </script>
+</body>
+
+</html>

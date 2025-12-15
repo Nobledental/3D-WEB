@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HealthFlo — NEO Patient OS</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Standalone Patient OS Styles -->
+  <link rel="stylesheet" href="css/patient.css" />
+</head>
+
+<body>
+
+<!-- ============================================================
+     HEADER — Same as Landing (Standalone Version)
+============================================================ -->
+<header class="hf-header" id="hfHeader">
+  <div class="hf-header-inner container">
+    <a href="index.html" class="hf-logo">HealthFlo</a>
+
+    <nav class="hf-main-nav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="stakeholders.html">Stakeholders</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+
+    <button class="hf-menu-btn" id="menuBtn">☰</button>
+  </div>
+</header>
+
+<!-- Mobile Drawer Navigation -->
+<nav class="hf-mobile-nav" id="mobileNav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="stakeholders.html">Stakeholders</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<!-- ============================================================
+     HERO — Apple White Neon
+============================================================ -->
+<section class="patient-hero">
+  <canvas id="heroCanvas"></canvas>
+
+  <div class="white-orb w-orb-1"></div>
+  <div class="white-orb w-orb-2"></div>
+  <div class="white-orb w-orb-3"></div>
+
+  <div class="container hero-inner">
+    <h1 class="hero-title" data-animate>
+      NEO Patient OS — India’s Futuristic Patient Super-App
+    </h1>
+
+    <p class="hero-subtitle" data-animate>
+      Your medical, insurance, vitals, care, finances & family monitoring — unified into a single AI-powered OS.
+    </p>
+
+    <div class="hero-cta" data-animate>
+      <a href="#modules" class="btn btn-primary">Explore Patient OS</a>
+      <a href="patient-dashboard.html" class="btn btn-outline-white">Launch Patient App</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MODULE GRID
+============================================================ -->
+<section class="hf-section" id="modules">
+  <div class="container">
+
+    <h2 class="section-title" data-animate>NEO Patient OS Modules</h2>
+    <p class="section-subtitle" data-animate>
+      Every module engineered for clarity, speed & predictive AI care.
+    </p>
+
+    <div class="patient-grid">
+
+      <div class="p-card" data-animate>
+        <span class="p-tag">Medical Vault</span>
+        <h3>Unified Health Records</h3>
+        <p>Encrypted storage for prescriptions, bills, scans & documents.</p>
+        <div class="p-icon">📁</div>
+      </div>
+
+      <div class="p-card" data-animate>
+        <span class="p-tag">AI Engine</span>
+        <h3>AI Symptom Assistant</h3>
+        <p>Explains symptoms, urgency levels & recommended actions.</p>
+        <div class="p-icon">🧠</div>
+      </div>
+
+      <div class="p-card">
+        <span class="p-tag">Vitals</span>
+        <h3>Vitals Tracking</h3>
+        <p>Alerts when vital signs exceed safe thresholds.</p>
+        <div class="p-icon">❤️</div>
+      </div>
+
+      <div class="p-card">
+        <span class="p-tag">Insurance</span>
+        <h3>Cashless + Claims</h3>
+        <p>Eligibility → pre-auth → discharge → settlement.</p>
+        <div class="p-icon">📄</div>
+      </div>
+
+      <div class="p-card">
+        <span class="p-tag">Diagnostics</span>
+        <h3>Lab Tests</h3>
+        <p>Home collection, comparison & real-time tracking.</p>
+        <div class="p-icon">🧪</div>
+      </div>
+
+      <div class="p-card">
+        <span class="p-tag">Medicines</span>
+        <h3>Refills & Delivery</h3>
+        <p>30–45 min delivery with smart reminders.</p>
+        <div class="p-icon">💊</div>
+      </div>
+
+      <div class="p-card">
+        <span class="p-tag">NRI OS</span>
+        <h3>Family Monitoring</h3>
+        <p>Global visibility for relatives abroad.</p>
+        <div class="p-icon">🌍</div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     ORBIT MAP — Full OS Structure
+============================================================ -->
+<section class="patient-orbit">
+  <div class="container">
+
+    <h2 class="section-title">Patient OS Orbit</h2>
+
+    <p class="section-subtitle small">
+      All modules orbiting around the NEO AI Core — one unified patient OS.
+    </p>
+
+    <div class="orbit-wrapper">
+
+      <div class="orbit-core">
+        <div class="core-inner">NEO<br>OS</div>
+      </div>
+
+      <div class="orbit-node node-1">Records</div>
+      <div class="orbit-node node-2">Insurance</div>
+      <div class="orbit-node node-3">Vitals</div>
+      <div class="orbit-node node-4">Finance</div>
+      <div class="orbit-node node-5">AI Care</div>
+      <div class="orbit-node node-6">Hospital Entry</div>
+
+    </div>
+
+    <div class="center-btn">
+      <a href="patient-dashboard.html" class="btn btn-primary big">Launch Patient App →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="hf-footer">
+  <div class="container">
+    <p>© 2025 HealthFlo — Unified AI Healthcare OS</p>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="js/patient.js"></script>
+
+</body>
+</html>

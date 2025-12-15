@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HealthFlo Devices</title>
+
+  <!-- Icons & Fonts -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared Theme -->
+  <link rel="stylesheet" href="css/dashboard-theme.css">
+  <!-- Preserving specific connection styles -->
+  <link rel="stylesheet" href="css/patient-connections.css">
+
+  <style>
+    /* Overrides */
+    .hf-topbar {
+      display: none !important;
+    }
+
+    .connection-hero {
+      display: none !important;
+    }
+
+    body {
+      background: transparent !important;
+      color: white !important;
+    }
+
+    /* Card Adjustments */
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .device-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .device-card h3 {
+      color: white;
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .device-card .section-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+
+    .table-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .notice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .notice {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #60a5fa;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- BROWSER BAR (Shared) -->
+    <div class="browser-bar">
+      <div class="window-controls">
+        <div class="window-dot" style="background: #ef4444;"></div>
+        <div class="window-dot" style="background: #f59e0b;"></div>
+        <div class="window-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="branding-right">HealthFlo <span>CLINICAL V3</span></div>
+    </div>
+
+    <div class="dashboard-body">
+      <!-- SIDEBAR (Shared) -->
+      <div class="sidebar">
+        <div class="logo">H<span>+</span></div>
+        <a class="menu-item" href="patient-dashboard.html"><i class="ph ph-heartbeat"></i><span
+            class="menu-label">Dashboard</span></a>
+        <a class="menu-item" href="patient-health.html"><i class="ph ph-pulse"></i><span
+            class="menu-label">Health</span></a>
+        <a class="menu-item" href="patient-organs.html"><i class="ph ph-scan"></i><span
+            class="menu-label">Organs</span></a>
+        <a class="menu-item" href="patient-labs.html"><i class="ph ph-flask"></i><span
+            class="menu-label">Labs</span></a>
+        <a class="menu-item" href="patient-pharmacy.html"><i class="ph ph-pill"></i><span
+            class="menu-label">Pharmacy</span></a>
+        <a class="menu-item" href="patient-hospitals.html"><i class="ph ph-hospital"></i><span
+            class="menu-label">Hospitals</span></a>
+        <a class="menu-item" href="patient-insurance.html"><i class="ph ph-shield-plus"></i><span
+            class="menu-label">Insurance</span></a>
+        <a class="menu-item" href="patient-log.html"><i class="ph ph-clipboard-text"></i><span
+            class="menu-label">Log</span></a>
+        <!-- Active State for Devices -->
+        <a class="menu-item active" href="patient-devices.html"><i class="ph-fill ph-watch"></i><span
+            class="menu-label">Devices</span></a>
+        <a class="menu-item" href="patient-family.html"><i class="ph ph-users"></i><span
+            class="menu-label">Family</span></a>
+        <a class="menu-item" href="patient-profile.html"><i class="ph ph-user"></i><span
+            class="menu-label">Profile</span></a>
+        <div class="sidebar-divider"></div>
+        <a class="menu-item" href="patient-settings.html"><i class="ph ph-gear-six"></i><span
+            class="menu-label">Settings</span></a>
+        <a class="menu-item danger" href="index.html" style="margin-top: auto;"><i class="ph ph-power"></i><span
+            class="menu-label">Exit</span></a>
+      </div>
+
+      <div class="main-content">
+
+        <div class="header-section">
+          <div class="header-left">
+            <div class="page-title">
+              <h2>Connections</h2>
+              <h1>Device <span>Manager</span></h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero / Pairing Section -->
+        <div class="card"
+          style="background: linear-gradient(135deg, rgba(88, 28, 135, 0.1), rgba(15, 23, 42, 0.6)); margin-bottom: 25px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span class="pill soft purple">Wi-Fi / BLE</span>
+              <h2 style="font-size:24px; margin: 10px 0;">Pair & Sync Devices</h2>
+              <p class="muted" style="max-width:500px;">Stream live vitals from watches, BP cuffs, and glucose monitors.
+              </p>
+              <div class="hero-actions" style="margin-top:20px; display:flex; gap:10px;">
+                <button class="pill primary" id="pairDevice">Scan for devices</button>
+                <button class="pill danger" id="triggerEmergency">Trigger Ambulance</button>
+                <button class="pill ghost" id="autoToggle">Auto trigger: OFF</button>
+              </div>
+              <div style="margin-top:10px;">
+                <small class="muted" id="live_location_status">Location ready.</small>
+              </div>
+            </div>
+
+            <!-- Device List Stats -->
+            <div id="device_list"
+              style="display:flex; gap:15px; background:rgba(0,0,0,0.2); padding:15px; border-radius:12px;">
+              <div style="text-align:center;">
+                <div style="font-size:11px; opacity:0.7;">Watch</div>
+                <div style="font-weight:700;">Neo Band</div>
+              </div>
+              <div style="text-align:center; border-left:1px solid rgba(255,255,255,0.1); padding-left:15px;">
+                <div style="font-size:11px; opacity:0.7;">BP Cuff</div>
+                <div style="font-weight:700;">Qardio</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Table -->
+        <div class="table-card" style="margin-bottom:25px;">
+          <h3 style="color:white; margin-bottom:15px; font-size:16px;">Connection Status</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Status</th>
+                <th>Signal</th>
+                <th>Last Sync</th>
+              </tr>
+            </thead>
+            <tbody id="device_status_rows">
+              <tr data-device="watch">
+                <td>Smart Watch</td>
+                <td><span class="chip success">Connected</span></td>
+                <td><span class="chip">Strong</span></td>
+                <td>2 min ago</td>
+              </tr>
+              <tr data-device="bp">
+                <td>BP Cuff</td>
+                <td><span class="chip success">Connected</span></td>
+                <td><span class="chip">Strong</span></td>
+                <td>5 min ago</td>
+              </tr>
+              <tr data-device="glucose">
+                <td>CGM</td>
+                <td><span class="chip warning">Ready</span></td>
+                <td><span class="chip">Moderate</span></td>
+                <td>20 min ago</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Real World Device Grid -->
+        <div class="section-grid" style="margin-bottom:25px;">
+          <!-- 1. Apple Watch -->
+          <div class="device-card active-device" style="border-color:var(--color-green);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div
+                style="width:48px; height:48px; background:#000; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                <i class="ph-fill ph-watch" style="font-size:24px; color:white;"></i>
+              </div>
+              <span class="chip success">Live Sync</span>
+            </div>
+            <h3 style="margin-top:15px; font-size:18px;">Apple Watch Series 9</h3>
+            <p class="section-sub">Source: HealthKit</p>
+            <div style="display:flex; gap:15px; margin-top:10px;">
+              <div>
+                <div class="muted" style="font-size:11px;">Heart Rate</div>
+                <div style="font-size:16px; font-weight:700;">72 <span style="font-size:11px;">BPM</span></div>
+              </div>
+              <div>
+                <div class="muted" style="font-size:11px;">HRV</div>
+                <div style="font-size:16px; font-weight:700;">45 <span style="font-size:11px;">ms</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Oura Ring -->
+          <div class="device-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div
+                style="width:48px; height:48px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid gold;">
+                <div style="width:20px; height:20px; border-radius:50%; border:2px solid #555;"></div>
+              </div>
+              <span class="chip">Synced 10m ago</span>
+            </div>
+            <h3 style="margin-top:15px; font-size:18px;">Oura Ring Gen 3</h3>
+            <p class="section-sub">Sleep & Readiness</p>
+            <div style="display:flex; gap:15px; margin-top:10px;">
+              <div>
+                <div class="muted" style="font-size:11px;">Sleep Score</div>
+                <div style="font-size:16px; font-weight:700;">85</div>
+              </div>
+              <div>
+                <div class="muted" style="font-size:11px;">Temp Dev.</div>
+                <div style="font-size:16px; font-weight:700;">+0.2°</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Omron BP -->
+          <div class="device-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div
+                style="width:48px; height:48px; background:white; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                <span style="color:#0075bf; font-weight:900; font-size:10px;">OMRON</span>
+              </div>
+              <span class="chip warning">Manual Sync</span>
+            </div>
+            <h3 style="margin-top:15px; font-size:18px;">Omron HEM-7120</h3>
+            <p class="section-sub">Blood Pressure Monitor</p>
+            <div style="margin-top:10px;">
+              <div class="muted" style="font-size:11px;">Last Reading (8:00 AM)</div>
+              <div style="font-size:16px; font-weight:700;">118 / 78 <span style="font-size:11px;">mmHg</span></div>
+            </div>
+          </div>
+
+          <!-- 4. Abbott Libre -->
+          <div class="device-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div
+                style="width:48px; height:48px; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                <span style="color:#fdba12; font-weight:900; font-size:10px;">Abbott</span>
+              </div>
+              <span class="chip success">Continuous</span>
+            </div>
+            <h3 style="margin-top:15px; font-size:18px;">FreeStyle Libre 3</h3>
+            <p class="section-sub">CGM Sensor</p>
+            <div style="margin-top:10px;">
+              <div class="muted" style="font-size:11px;">Glucose</div>
+              <div style="font-size:16px; font-weight:700;">110 <span style="font-size:11px;">mg/dL</span> <span
+                  style="color:var(--color-green);">→</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integration Status Table -->
+        <h3 style="color:white; margin-bottom:15px; font-size:16px;">Connection Health</h3>
+        <div class="table-card" style="margin-bottom:25px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Device ID</th>
+                <th>Battery</th>
+                <th>Last Packet</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><i class="ph-fill ph-apple-logo"></i> HealthKit</td>
+                <td>Watch9,4</td>
+                <td><span style="color:#10b981;">82%</span></td>
+                <td>Just now</td>
+                <td><span class="chip success">Active</span></td>
+              </tr>
+              <tr>
+                <td><i class="ph-fill ph-circle"></i> Oura Cloud</td>
+                <td>RNG_3321</td>
+                <td><span style="color:#f59e0b;">15%</span></td>
+                <td>12 min ago</td>
+                <td><span class="chip">Standby</span></td>
+              </tr>
+              <tr>
+                <td><i class="ph-fill ph-bluetooth"></i> Omron Connect</td>
+                <td>HEM_BLE_99</td>
+                <td><span style="color:#10b981;">100%</span></td>
+                <td>4 hrs ago</td>
+                <td><span class="chip warning">Offline</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Support Notices -->
+        <h3 style="color:white; font-size:16px; margin-bottom:10px;">Quick Actions</h3>
+        <div class="notice-grid">
+          <div class="notice">Reboot BLE radios on devices older than 2022.</div>
+          <div class="notice">Keep CGM phone within 6 ft for sync.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { injectDemoData } from './js/demo-data.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      injectDemoData();
+    });
+  </script>
+  <script src="js/patient-os.js"></script>
+  <script src="js/patient-connections.js"></script>
+</body>
+
+</html>
